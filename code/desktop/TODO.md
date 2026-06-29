@@ -17,8 +17,10 @@
   实现见 `src/main/bridge.ts` + `src/renderer/src/webviewBridge.ts`。
 - [x] **browser-act skill**：已做成真正的 Hermes skill（`code/skills/browser-act/`，含 SKILL.md +
   scripts/browser-act.sh），驱动内置浏览器桥；`install.sh` 会把 `code/skills/*` 同步到 `~/.hermes/skills/`。
-- [ ] **其余采集 skill 落地**：基于同一桥实现 china-web-data-collection / wenshu-api-crawl 等——
-  滚动加载/翻页/分页、字段抽取、入库（飞书多维表格/Excel）。
+- [x] **china-web-data-collection skill**：`code/skills/china-web-data-collection/`（SKILL.md +
+  scripts/collect.sh + references/sites.md 分站点配方），国内站点反爬采集，限速滚动 + 抽取，已注册+实测。
+- [ ] **wenshu-api-crawl 等其余采集 skill**：同样基于浏览器桥落地。
+- [ ] **应用级代理**：webview 走代理需 `session.setProxy`（读 .env 的 HTTPS_PROXY/ALL_PROXY），当前依赖系统代理。
 - [ ] **桥安全**：当前 localhost 无鉴权，后续加 token（写入 bridge.json，请求头校验）。
 - [ ] **迷你浏览器**：`target=_blank` 弹窗在同一 webview 内打开；多标签页。
 - [ ] **真实语音 STT**：Web Speech API 在 Electron 不稳定，改为录音 + ASR endpoint（需指定服务）。
