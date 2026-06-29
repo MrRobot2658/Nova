@@ -20,19 +20,15 @@ interface Props {
 
 export default function Sidebar({ status, view, onNavigate }: Props): JSX.Element {
   const label = status ? MODE_LABEL[status.mode] : '连接中…'
+  const dotClass = status?.ready ? (status.mode === 'simulated' ? 'warn' : 'ok') : ''
+
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
         <div className="brand">
           <span className="logo">N</span> Nova
         </div>
-        <button className={`nav-btn ${view === 'chat' ? 'active' : ''}`} onClick={() => onNavigate('chat')}>
-          💬 对话
-        </button>
-        <button className={`nav-btn ${view === 'settings' ? 'active' : ''}`} onClick={() => onNavigate('settings')}>
-          ⚙️ 设置
-        </button>
-
+        <button className="new-task" onClick={() => onNavigate('chat')}>＋ 新建任务</button>
         <div className="side-label">最近</div>
         <ul className="task-list">
           {RECENT.map((t, i) => (
@@ -43,14 +39,24 @@ export default function Sidebar({ status, view, onNavigate }: Props): JSX.Elemen
         </ul>
       </div>
 
-      <button
-        className="side-foot"
-        onClick={() => onNavigate('settings')}
-        title="打开设置"
-      >
-        <span className={`status-dot ${status?.ready && status.mode !== 'simulated' ? 'ok' : status?.ready ? 'warn' : ''}`} />
-        <span className="status-text">{label}</span>
-      </button>
+      {/* 左下角：账户名 + 设置 */}
+      <div className="sidebar-foot">
+        <div className="account">
+          <span className="avatar">本</span>
+          <div className="account-meta">
+            <span className="account-name">本地用户</span>
+            <span className="account-sub">
+              <span className={`status-dot ${dotClass}`} /> {label}
+            </span>
+          </div>
+        </div>
+        <button
+          className={`nav-btn foot ${view === 'settings' ? 'active' : ''}`}
+          onClick={() => onNavigate('settings')}
+        >
+          ⚙️ 设置
+        </button>
+      </div>
     </aside>
   )
 }
