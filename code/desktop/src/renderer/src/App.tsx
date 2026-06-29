@@ -224,6 +224,7 @@ export default function App(): JSX.Element {
     setMessages([])
     setSteps([])
     setRunning(false)
+    setBrowserUrl('about:blank') // 新会话时清空内置浏览器
     setRightTab('exec')
     setView('chat')
   }
