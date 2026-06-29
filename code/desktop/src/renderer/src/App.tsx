@@ -8,12 +8,15 @@ import type { HermesStatus, Msg, NovaEvent, SessionItem, Step, View } from './ty
 
 type RightTab = 'exec' | 'browser'
 
-/** 从文本里识别可在右侧打开的网址 / 本地可预览文件 */
+/** 从文本里识别可在右侧打开的网址 / 本地可预览文件（支持中文路径） */
 function detectUrl(text: string): string | null {
   const web = text.match(/(https?:\/\/[^\s<>"')\]]+)/i)
   if (web) return web[1].replace(/[.,;]+$/, '')
-  const file = text.match(/(\/[\w./~-]+\.(?:pdf|png|jpe?g|gif|svg|html?))/i)
-  if (file) return `file://${file[1]}`
+  const fileUrl = text.match(/file:\/\/[^\s<>"')\]]+/i)
+  if (fileUrl) return fileUrl[0]
+  // 绝对路径（允许中文、连字符等非空白字符）指向可预览文件
+  const path = text.match(/(\/[^\s"'<>`]*\.(?:pdf|png|jpe?g|gif|svg|html?))/i)
+  if (path) return `file://${encodeURI(path[1])}`
   return null
 }
 

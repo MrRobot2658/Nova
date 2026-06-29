@@ -9,40 +9,47 @@ type WebviewEl = HTMLElement & {
   getURL(): string
 }
 
+/** 把地址栏输入归一化成可加载的 URL（支持本地文件路径与中文） */
 function normalize(input: string): string {
   const t = input.trim()
   if (!t) return ''
   if (/^(https?|file):\/\//i.test(t)) return t
-  // 形似域名/路径 → 加 https；否则当作搜索
+  if (t.startsWith('/')) return `file://${encodeURI(t)}`
   if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t)) return `https://${t}`
-  if (t.startsWith('/')) return `file://${t}`
   return `https://www.google.com/search?q=${encodeURIComponent(t)}`
 }
 
 export default function Browser({ url }: { url: string }): JSX.Element {
-  const ref = useRef<HTMLElement | null>(null)
+  const ref = useRef<WebviewEl | null>(null)
+  const firstNav = useRef(true)
   const [addr, setAddr] = useState(url)
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => setAddr(url), [url])
+  // ref 回调：在加载前先开启 plugins（PDF 等内置查看器），再设置 src
+  const attach = (el: HTMLElement | null): void => {
+    if (!el || ref.current === el) return
+    const wv = el as WebviewEl
+    ref.current = wv
+    el.setAttribute('plugins', 'true')
+    el.setAttribute('allowpopups', 'true')
+    el.addEventListener('did-start-loading', () => setLoading(true))
+    el.addEventListener('did-stop-loading', () => {
+      setLoading(false)
+      setAddr(wv.getURL())
+    })
+    el.setAttribute('src', url) // plugins 设好后再触发首次加载
+  }
 
   useEffect(() => {
-    const wv = ref.current
-    if (!wv) return
-    const onStart = (): void => setLoading(true)
-    const onStop = (): void => {
-      setLoading(false)
-      setAddr((wv as WebviewEl).getURL())
+    setAddr(url)
+    if (firstNav.current) {
+      firstNav.current = false // 首次加载由 attach 的 src 完成
+      return
     }
-    wv.addEventListener('did-start-loading', onStart)
-    wv.addEventListener('did-stop-loading', onStop)
-    return () => {
-      wv.removeEventListener('did-start-loading', onStart)
-      wv.removeEventListener('did-stop-loading', onStop)
-    }
-  }, [])
+    if (ref.current && url) void ref.current.loadURL(url).catch(() => undefined)
+  }, [url])
 
-  const wv = (): WebviewEl | null => ref.current as WebviewEl | null
+  const wv = (): WebviewEl | null => ref.current
   const go = (raw: string): void => {
     const target = normalize(raw)
     if (target) void wv()?.loadURL(target).catch(() => undefined)
@@ -53,7 +60,7 @@ export default function Browser({ url }: { url: string }): JSX.Element {
       <div className="browser-bar">
         <button className="nav-ico" onClick={() => wv()?.goBack()} title="后退">‹</button>
         <button className="nav-ico" onClick={() => wv()?.goForward()} title="前进">›</button>
-        <button className="nav-ico" onClick={() => (loading ? wv()?.stop() : wv()?.reload())} title="刷新">
+        <button className="nav-ico" onClick={() => (loading ? wv()?.stop() : wv()?.reload())} title="刷新 / 停止">
           {loading ? '✕' : '⟳'}
         </button>
         <input
@@ -63,11 +70,11 @@ export default function Browser({ url }: { url: string }): JSX.Element {
           onKeyDown={(e) => {
             if (e.key === 'Enter') go(addr)
           }}
-          placeholder="输入网址或搜索…"
+          placeholder="输入网址或本地文件路径…"
         />
       </div>
       {loading && <div className="browser-progress" />}
-      <webview ref={ref} src={url} className="webview" partition="persist:nova" />
+      <webview ref={attach} className="webview" partition="persist:nova" />
     </div>
   )
 }
