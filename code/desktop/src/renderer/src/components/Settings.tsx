@@ -6,11 +6,11 @@ import Mcp from './settings/Mcp'
 import Usage from './settings/Usage'
 
 const TABS = [
-  { key: 'connection', label: '连接' },
-  { key: 'general', label: '通用' },
-  { key: 'skills', label: 'Skill' },
-  { key: 'mcp', label: 'MCP' },
-  { key: 'usage', label: '用量' }
+  { key: 'connection', label: '连接', icon: '🔌' },
+  { key: 'general', label: '通用', icon: '⚙️' },
+  { key: 'skills', label: 'Skill', icon: '🧩' },
+  { key: 'mcp', label: 'MCP', icon: '🔗' },
+  { key: 'usage', label: '用量', icon: '📊' }
 ] as const
 
 type TabKey = (typeof TABS)[number]['key']
@@ -24,6 +24,7 @@ export default function Settings({ onChanged }: { onChanged: () => void }): JSX.
       <nav className="settings-tabs">
         {TABS.map((t) => (
           <button key={t.key} className={`tab ${tab === t.key ? 'active' : ''}`} onClick={() => setTab(t.key)}>
+            <span className="tab-ico">{t.icon}</span>
             {t.label}
           </button>
         ))}

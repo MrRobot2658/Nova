@@ -1,9 +1,27 @@
+import { Fragment } from 'react'
 import type { HermesStatus, SessionItem, View } from '../types'
 
 const MODE_LABEL: Record<HermesStatus['mode'], string> = {
   system: '本机 Hermes（已复用）',
   bundled: '内置 Hermes',
   simulated: '模拟模式 · 开发'
+}
+
+const GROUP_ORDER = ['今天', '昨天', '本周', '更早'] as const
+
+/** 从会话 id（YYYYMMDD_...）推断分组 */
+function groupOf(id: string): string {
+  const m = id.match(/(\d{4})(\d{2})(\d{2})/)
+  if (!m) return '更早'
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+  d.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diff = Math.round((today.getTime() - d.getTime()) / 86400000)
+  if (diff <= 0) return '今天'
+  if (diff === 1) return '昨天'
+  if (diff <= 7) return '本周'
+  return '更早'
 }
 
 interface Props {
@@ -20,6 +38,8 @@ export default function Sidebar({ status, view, sessions, currentSession, onNavi
   const label = status ? MODE_LABEL[status.mode] : '连接中…'
   const dotClass = status?.ready ? (status.mode === 'simulated' ? 'warn' : 'ok') : ''
 
+  const grouped = GROUP_ORDER.map((g) => ({ g, items: sessions.filter((s) => groupOf(s.id) === g) })).filter((x) => x.items.length)
+
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
@@ -28,23 +48,30 @@ export default function Sidebar({ status, view, sessions, currentSession, onNavi
         </div>
         <button className="new-task" onClick={onNewSession}>＋ 新会话</button>
 
-        <div className="side-label">会话</div>
         <ul className="task-list">
-          {sessions.length === 0 && <li className="task-empty">暂无会话{status?.mode === 'simulated' ? '（连接 Hermes 后显示）' : ''}</li>}
-          {sessions.map((s) => {
-            const name = s.title || s.preview || s.id
-            return (
-              <li
-                key={s.id}
-                className={`session-item ${currentSession === s.id ? 'active' : ''}`}
-                title={name}
-                onClick={() => onSelectSession(s.id)}
-              >
-                <span className="session-name">{name}</span>
-                {s.lastActive && <span className="session-time">{s.lastActive}</span>}
-              </li>
-            )
-          })}
+          {sessions.length === 0 ? (
+            <li className="task-empty">暂无会话{status?.mode === 'simulated' ? '（连接 Hermes 后显示）' : ''}</li>
+          ) : (
+            grouped.map(({ g, items }) => (
+              <Fragment key={g}>
+                <li className="session-group">{g}</li>
+                {items.map((s) => {
+                  const name = s.title || s.preview || s.id
+                  return (
+                    <li
+                      key={s.id}
+                      className={`session-item ${currentSession === s.id ? 'active' : ''}`}
+                      title={name}
+                      onClick={() => onSelectSession(s.id)}
+                    >
+                      <span className="session-name">{name}</span>
+                      {s.lastActive && <span className="session-time">{s.lastActive}</span>}
+                    </li>
+                  )
+                })}
+              </Fragment>
+            ))
+          )}
         </ul>
       </div>
 

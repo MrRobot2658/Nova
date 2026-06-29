@@ -338,6 +338,27 @@ body {
 .send-btn:active:not(:disabled) { transform: scale(.94); }
 .send-btn:disabled { background: #d7d9e0; cursor: not-allowed; }
 
+/* ── 会话列表分组 ── */
+.session-group { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .04em; padding: 14px 10px 4px; }
+.session-group:first-child { padding-top: 4px; }
+
+/* ── 执行面板：连接式时间线 ── */
+.timeline { gap: 0; padding-left: 4px; }
+.tl-item { background: none; border: none; border-radius: 0; padding: 0 0 18px; gap: 13px; position: relative; }
+.tl-item:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 24px; bottom: 0; width: 2px; background: var(--line); }
+.tl-ico { width: 24px; height: 24px; border-radius: 50%; z-index: 1; font-size: 12px; }
+.tl-item.running .tl-ico { background: #fff; border: 2px solid rgba(99,102,241,.25); border-top-color: var(--indigo); color: transparent; animation: spin .8s linear infinite; }
+.tl-item.done .tl-ico { background: var(--emerald); color: #fff; }
+.tl-item.fail .tl-ico { background: #ef4444; color: #fff; }
+.exec-summary { margin-top: 4px; font-size: 13px; font-weight: 600; color: var(--emerald); }
+.exec-progress { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.exec-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.exec-empty-ico { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; font-size: 22px; background: rgba(99,102,241,.08); }
+
+/* ── 设置 tab 图标 ── */
+.tab { display: inline-flex; align-items: center; }
+.tab-ico { margin-right: 5px; font-size: 13px; }
+
 /* 滚动条 */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb { background: #d8dbe2; border-radius: 8px; }
