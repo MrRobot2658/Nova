@@ -34,7 +34,12 @@ const SITE_MAP: Record<string, string> = {
 function parseOpenCommand(text: string): { kind: 'url' | 'path' | 'keyword'; value: string } | null {
   const m = text.trim().match(/^(?:(?:在)?(?:内置)?浏览器(?:里|中)?\s*)?(?:(?:打开|预览|查看|访问)\s*[:：]?\s*|open\s+)(.+)$/i)
   if (!m) return null
-  const v = m[1].trim().replace(/^["'`「【]+|["'`」】]+$/g, '').trim()
+  // 去掉首尾的引号/括号/标点（常见于从别处复制带了 ）。, 等）
+  const v = m[1]
+    .trim()
+    .replace(/^[\s"'`「【（(]+/, '')
+    .replace(/[\s"'`」】）).,，。、;；]+$/, '')
+    .trim()
   if (!v) return null
   if (/^(https?|file):\/\//i.test(v)) return { kind: 'url', value: v }
   if (v.startsWith('/')) return { kind: 'path', value: v }
