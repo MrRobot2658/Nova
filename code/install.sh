@@ -60,6 +60,13 @@ EOF
         exit 1
     fi
 
+    # 同步 Nova 预制 Skill 到 Hermes（放入即注册）
+    if [ -d "$NOVA_DIR/skills" ]; then
+        mkdir -p "$HERMES_DIR/skills"
+        cp -R "$NOVA_DIR/skills/." "$HERMES_DIR/skills/"
+        echo "✅ Nova Skill 已同步到 $HERMES_DIR/skills"
+    fi
+
     echo ""
     echo "✅ Nova macOS 安装完成"
     echo ""

@@ -15,8 +15,10 @@
   环境变量 `NOVA_BROWSER_BRIDGE` 传给 Hermes 子进程）。技能用 `POST $NOVA_BROWSER_BRIDGE/browser`
   驱动右侧 webview：`navigate` / `text` / `html` / `info` / `eval`(js) / `scrollBottom` / `screenshot`。
   实现见 `src/main/bridge.ts` + `src/renderer/src/webviewBridge.ts`。
-- [ ] **爬虫 / 数据采集 skill 落地**：基于上面的桥实现 browser-act / china-web-data-collection /
-  wenshu-api-crawl 等——封装成 Hermes skill（curl 调用桥），处理滚动加载/翻页/分页、字段抽取、入库。
+- [x] **browser-act skill**：已做成真正的 Hermes skill（`code/skills/browser-act/`，含 SKILL.md +
+  scripts/browser-act.sh），驱动内置浏览器桥；`install.sh` 会把 `code/skills/*` 同步到 `~/.hermes/skills/`。
+- [ ] **其余采集 skill 落地**：基于同一桥实现 china-web-data-collection / wenshu-api-crawl 等——
+  滚动加载/翻页/分页、字段抽取、入库（飞书多维表格/Excel）。
 - [ ] **桥安全**：当前 localhost 无鉴权，后续加 token（写入 bridge.json，请求头校验）。
 - [ ] **迷你浏览器**：`target=_blank` 弹窗在同一 webview 内打开；多标签页。
 - [ ] **真实语音 STT**：Web Speech API 在 Electron 不稳定，改为录音 + ASR endpoint（需指定服务）。
