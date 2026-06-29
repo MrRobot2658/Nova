@@ -51,6 +51,7 @@ export interface NovaSettings {
   profile: string
   model: string
   yolo: boolean
+  workdir: string
 }
 
 export type NovaEvent =

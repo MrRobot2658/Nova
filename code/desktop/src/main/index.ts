@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, session } from 'electron'
 import { join } from 'path'
 import { HermesManager } from './hermes'
 
@@ -39,6 +39,12 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
+  // 允许麦克风（语音输入）等媒体权限
+  session.defaultSession.setPermissionRequestHandler((_wc, permission, cb) => {
+    const p = permission as string
+    cb(p === 'media' || p === 'audioCapture' || p === 'microphone')
+  })
+
   // 启动即检测本机 Hermes：存在则复用、不安装；否则用内置；开发期回退模拟
   await hermes.init((evt) => mainWindow?.webContents.send('hermes:event', evt))
 
@@ -48,6 +54,12 @@ app.whenReady().then(async () => {
   ipcMain.handle('settings:get', () => hermes.getSettings())
   ipcMain.handle('settings:set', (_event, patch) => hermes.setSettings(patch))
   ipcMain.handle('nova:run', (_event, text: string) => hermes.run(text))
+
+  // 选择工作目录
+  ipcMain.handle('dialog:select-folder', async () => {
+    const r = await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] })
+    return r.canceled || r.filePaths.length === 0 ? null : r.filePaths[0]
+  })
 
   createWindow()
 

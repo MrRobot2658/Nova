@@ -224,9 +224,10 @@ export class HermesManager {
     if (this.settings.yolo) args.push('--yolo')
     if (model) args.push('-m', model)
 
+    const cwd = this.settings.workdir?.trim() || homedir()
     let child: ChildProcess
     try {
-      child = spawn(bin, args, { cwd: homedir(), env: { ...process.env, ...this.devEnv(), NO_COLOR: '1' } })
+      child = spawn(bin, args, { cwd, env: { ...process.env, ...this.devEnv(), NO_COLOR: '1' } })
     } catch (e) {
       this.emit({ type: 'step-done', runId, id: stepId, ok: false })
       this.emit({ type: 'error', runId, message: `启动 Hermes 失败：${(e as Error).message}` })

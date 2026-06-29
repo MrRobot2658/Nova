@@ -11,13 +11,27 @@ export default function App(): JSX.Element {
   const [steps, setSteps] = useState<Step[]>([])
   const [running, setRunning] = useState(false)
   const [status, setStatus] = useState<HermesStatus | null>(null)
+  const [workdir, setWorkdir] = useState('')
 
   const refreshStatus = (): void => {
     void window.nova.status().then((s) => setStatus(s as HermesStatus))
   }
 
+  const refreshWorkdir = (): void => {
+    void window.nova.getSettings().then((s) => setWorkdir((s as { workdir?: string }).workdir ?? ''))
+  }
+
+  const pickFolder = async (): Promise<void> => {
+    const dir = await window.nova.selectFolder()
+    if (dir) {
+      await window.nova.setSettings({ workdir: dir })
+      setWorkdir(dir)
+    }
+  }
+
   useEffect(() => {
     refreshStatus()
+    refreshWorkdir()
 
     const off = window.nova.onEvent((raw) => {
       const evt = raw as NovaEvent
@@ -70,11 +84,11 @@ export default function App(): JSX.Element {
       <Sidebar status={status} view={view} onNavigate={setView} />
       {view === 'chat' ? (
         <>
-          <Conversation messages={messages} running={running} onSend={send} />
+          <Conversation messages={messages} running={running} workdir={workdir} onSend={send} onPickFolder={pickFolder} />
           <ExecutionPanel steps={steps} running={running} />
         </>
       ) : (
-        <Settings onChanged={refreshStatus} />
+        <Settings onChanged={() => { refreshStatus(); refreshWorkdir() }} />
       )}
     </div>
   )

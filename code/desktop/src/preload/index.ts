@@ -14,6 +14,8 @@ const api = {
   getSettings: (): Promise<unknown> => ipcRenderer.invoke('settings:get'),
   /** 写入设置（部分字段） */
   setSettings: (patch: Record<string, unknown>): Promise<unknown> => ipcRenderer.invoke('settings:set', patch),
+  /** 选择工作目录，返回路径或 null */
+  selectFolder: (): Promise<string | null> => ipcRenderer.invoke('dialog:select-folder'),
   /** 订阅执行事件流；返回取消订阅函数 */
   onEvent: (cb: (evt: unknown) => void): (() => void) => {
     const listener = (_e: unknown, evt: unknown): void => cb(evt)

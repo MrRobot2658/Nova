@@ -5,7 +5,7 @@ interface Props {
   onChanged: () => void
 }
 
-const EMPTY_SETTINGS: NovaSettings = { hermesPath: '', profile: '', model: '', yolo: true }
+const EMPTY_SETTINGS: NovaSettings = { hermesPath: '', profile: '', model: '', yolo: true, workdir: '' }
 
 export default function Settings({ onChanged }: Props): JSX.Element {
   const [settings, setSettings] = useState<NovaSettings>(EMPTY_SETTINGS)
@@ -98,6 +98,27 @@ export default function Settings({ onChanged }: Props): JSX.Element {
               </select>
             </label>
           </div>
+
+          <label className="field">
+            <span>工作目录（Agent 执行的 cwd，留空用主目录）</span>
+            <div className="row">
+              <input
+                type="text"
+                placeholder="默认：用户主目录"
+                value={settings.workdir}
+                onChange={(e) => update({ workdir: e.target.value })}
+              />
+              <button
+                className="btn"
+                onClick={async () => {
+                  const dir = await window.nova.selectFolder()
+                  if (dir) update({ workdir: dir })
+                }}
+              >
+                选择文件夹
+              </button>
+            </div>
+          </label>
 
           <label className="check">
             <input type="checkbox" checked={settings.yolo} onChange={(e) => update({ yolo: e.target.checked })} />

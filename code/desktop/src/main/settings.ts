@@ -12,13 +12,16 @@ export interface NovaSettings {
   model: string
   /** 自动批准工具调用（--yolo），非交互执行避免卡在审批 */
   yolo: boolean
+  /** 工作目录（Agent 执行的 cwd）；留空则用用户主目录 */
+  workdir: string
 }
 
 const DEFAULTS: NovaSettings = {
   hermesPath: '',
   profile: '',
   model: '',
-  yolo: true
+  yolo: true,
+  workdir: ''
 }
 
 function settingsFile(): string {
