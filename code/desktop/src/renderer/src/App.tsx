@@ -9,6 +9,26 @@ import { execBrowser, setNavHook, type BrowserCommand } from './webviewBridge'
 
 type RightTab = 'exec' | 'browser'
 
+// 常见站点名 → 网址：在内置真实浏览器里打开（你的 IP、登录态），避免 headless 被拦
+const SITE_MAP: Record<string, string> = {
+  小红书: 'https://www.xiaohongshu.com',
+  微博: 'https://weibo.com',
+  知乎: 'https://www.zhihu.com',
+  抖音: 'https://www.douyin.com',
+  b站: 'https://www.bilibili.com',
+  哔哩哔哩: 'https://www.bilibili.com',
+  bilibili: 'https://www.bilibili.com',
+  淘宝: 'https://www.taobao.com',
+  京东: 'https://www.jd.com',
+  百度: 'https://www.baidu.com',
+  豆瓣: 'https://www.douban.com',
+  大众点评: 'https://www.dianping.com',
+  企查查: 'https://www.qcc.com',
+  天眼查: 'https://www.tianyancha.com',
+  github: 'https://github.com',
+  google: 'https://www.google.com'
+}
+
 /** 识别「打开/预览 X」这类命令，返回目标（url / 绝对路径 / 关键词） */
 function parseOpenCommand(text: string): { kind: 'url' | 'path' | 'keyword'; value: string } | null {
   const m = text.trim().match(/^(?:(?:在)?(?:内置)?浏览器(?:里|中)?\s*)?(?:打开|预览|查看|访问|open)\s+(.+)$/i)
@@ -17,6 +37,8 @@ function parseOpenCommand(text: string): { kind: 'url' | 'path' | 'keyword'; val
   if (!v) return null
   if (/^(https?|file):\/\//i.test(v)) return { kind: 'url', value: v }
   if (v.startsWith('/')) return { kind: 'path', value: v }
+  const site = SITE_MAP[v.toLowerCase()] ?? SITE_MAP[v]
+  if (site) return { kind: 'url', value: site } // 已知站点名 → 内置浏览器打开
   if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(v)) return { kind: 'url', value: `https://${v}` } // 裸域名
   return { kind: 'keyword', value: v }
 }
@@ -74,6 +96,10 @@ export default function App(): JSX.Element {
     }
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseup', onUp)
+  }
+
+  const cancel = (): void => {
+    void window.nova.cancel()
   }
 
   const pickFolder = async (): Promise<void> => {
@@ -216,7 +242,7 @@ export default function App(): JSX.Element {
       />
       {view === 'chat' ? (
         <>
-          <Conversation messages={messages} running={running} workdir={workdir} onSend={send} onPickFolder={pickFolder} />
+          <Conversation messages={messages} running={running} workdir={workdir} onSend={send} onPickFolder={pickFolder} onCancel={cancel} />
           <div className="right-col">
             <div className="splitter" onMouseDown={startDrag} title="拖拽调整宽度" />
             <div className="right-tabs drag">

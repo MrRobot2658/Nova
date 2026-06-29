@@ -4,6 +4,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 const api = {
   /** 执行一条自然语言指令（可选续接已有会话） */
   run: (text: string, sessionId?: string): Promise<{ runId: string }> => ipcRenderer.invoke('nova:run', text, sessionId),
+  /** 停止当前执行 */
+  cancel: (): Promise<void> => ipcRenderer.invoke('nova:cancel'),
   /** 会话列表（Hermes） */
   listSessions: (): Promise<unknown> => ipcRenderer.invoke('sessions:list'),
   /** 加载某会话历史 */

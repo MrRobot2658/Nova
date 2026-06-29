@@ -57,6 +57,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('settings:get', () => hermes.getSettings())
   ipcMain.handle('settings:set', (_event, patch) => hermes.setSettings(patch))
   ipcMain.handle('nova:run', (_event, text: string, sessionId?: string) => hermes.run(text, sessionId))
+  ipcMain.handle('nova:cancel', () => hermes.cancel())
   ipcMain.handle('sessions:list', () => hermes.listSessions())
   ipcMain.handle('session:load', (_event, id: string) => hermes.loadSession(id))
 

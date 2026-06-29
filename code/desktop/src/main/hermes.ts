@@ -103,6 +103,7 @@ export class HermesManager {
   private proc: ChildProcess | null = null
   private emit: (evt: NovaEvent) => void = () => {}
   private runSeq = 0
+  private cancelled = false
   private settings: NovaSettings = loadSettings()
   private _status: HermesStatus = { mode: 'simulated', detected: false, bin: null, ready: false }
 
@@ -418,8 +419,16 @@ export class HermesManager {
     return metrics
   }
 
+  /** 停止当前执行 */
+  cancel(): void {
+    this.cancelled = true
+    this.proc?.kill()
+    this.proc = null
+  }
+
   async run(text: string, sessionId?: string): Promise<{ runId: string }> {
     const runId = `r${++this.runSeq}`
+    this.cancelled = false
     const st = this._status
     if (st.mode === 'simulated' || !st.bin) {
       void this.simulate(runId, text)
@@ -475,6 +484,13 @@ export class HermesManager {
     child.stderr?.on('data', (d: Buffer) => this.emit({ type: 'output', runId, chunk: d.toString() }))
     child.on('error', (e: Error) => this.emit({ type: 'error', runId, message: `Hermes 进程错误：${e.message}` }))
     child.on('close', (code: number | null) => {
+      if (this.cancelled) {
+        this.emit({ type: 'step-done', runId, id: stepId, ok: false })
+        this.emit({ type: 'output', runId, chunk: '\n（已停止）' })
+        this.emit({ type: 'done', runId })
+        this.proc = null
+        return
+      }
       this.emit({ type: 'step-done', runId, id: stepId, ok: code === 0 })
       if (code !== 0) this.emit({ type: 'error', runId, message: `Hermes 退出码 ${code}` })
       this.emit({ type: 'done', runId })
@@ -531,10 +547,19 @@ export class HermesManager {
     await sleep(420)
 
     for (let i = 0; i < steps.length; i++) {
+      if (this.cancelled) {
+        this.emit({ type: 'output', runId, chunk: '（已停止）' })
+        this.emit({ type: 'done', runId })
+        return
+      }
       const id = `${runId}-${i}`
       this.emit({ type: 'step-start', runId, id, skill: steps[i].skill, desc: steps[i].desc })
       await sleep(720)
       this.emit({ type: 'step-done', runId, id, ok: true })
+    }
+    if (this.cancelled) {
+      this.emit({ type: 'done', runId })
+      return
     }
 
     await sleep(320)

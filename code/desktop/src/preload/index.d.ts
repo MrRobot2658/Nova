@@ -4,6 +4,7 @@ declare global {
   interface Window {
     nova: {
       run(text: string, sessionId?: string): Promise<{ runId: string }>
+      cancel(): Promise<void>
       listSessions(): Promise<unknown>
       loadSession(id: string): Promise<unknown>
       status(): Promise<unknown>

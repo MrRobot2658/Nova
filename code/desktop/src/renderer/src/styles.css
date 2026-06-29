@@ -337,6 +337,8 @@ body {
 .send-btn:hover:not(:disabled) { background: var(--indigo-dark); }
 .send-btn:active:not(:disabled) { transform: scale(.94); }
 .send-btn:disabled { background: #d7d9e0; cursor: not-allowed; }
+.send-btn.stop { background: #ef4444; font-size: 13px; }
+.send-btn.stop:hover { background: #dc2626; }
 
 /* ── 会话列表分组 ── */
 .session-group { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .04em; padding: 14px 10px 4px; }

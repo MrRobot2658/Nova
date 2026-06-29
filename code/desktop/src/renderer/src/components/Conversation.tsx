@@ -7,6 +7,7 @@ interface Props {
   workdir: string
   onSend: (text: string) => void
   onPickFolder: () => void
+  onCancel: () => void
 }
 
 const EXAMPLES = [
@@ -37,7 +38,7 @@ function TypingDots(): JSX.Element {
   )
 }
 
-export default function Conversation({ messages, running, workdir, onSend, onPickFolder }: Props): JSX.Element {
+export default function Conversation({ messages, running, workdir, onSend, onPickFolder, onCancel }: Props): JSX.Element {
   const [text, setText] = useState('')
   const [listening, setListening] = useState(false)
   const [voiceErr, setVoiceErr] = useState('')
@@ -49,6 +50,15 @@ export default function Conversation({ messages, running, workdir, onSend, onPic
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, running])
+
+  // 输入框随内容自适应高度（1 行 → 最多 168px）
+  useEffect(() => {
+    const el = taRef.current
+    if (el) {
+      el.style.height = 'auto'
+      el.style.height = `${Math.min(el.scrollHeight, 168)}px`
+    }
+  }, [text])
 
   const submit = (): void => {
     const t = text.trim()
@@ -167,9 +177,15 @@ export default function Conversation({ messages, running, workdir, onSend, onPic
               }
             }}
           />
-          <button className="send-btn" disabled={running || !text.trim()} onClick={submit} title="发送">
-            ↑
-          </button>
+          {running ? (
+            <button className="send-btn stop" onClick={onCancel} title="停止">
+              ■
+            </button>
+          ) : (
+            <button className="send-btn" disabled={!text.trim()} onClick={submit} title="发送">
+              ↑
+            </button>
+          )}
         </div>
       </div>
     </main>
