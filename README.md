@@ -84,9 +84,10 @@
 
 ## 安装
 
-```bash
-bash install.sh
-```
+| 平台 | 方式 | 下载 |
+|------|------|------|
+| macOS | 双击 `Nova.dmg` → 拖入 Applications | [下载 .dmg]() |
+| Windows | 双击 `Nova-Setup.exe` → 自动安装 WSL2 + Hermes + Nova | [下载 .exe]() |
 
 安装后即可使用：
 
@@ -94,19 +95,24 @@ bash install.sh
 nova "你的需求"
 ```
 
+或双击桌面 Nova 图标（Windows）。
+
 ## 目录结构
 
 ```
 Nova/
-├── install.sh          # 一键安装器
-├── README.md           # 本文件
+├── install.sh              # macOS 一键安装器（含 --dmg 打包）
+├── README.md               # 本文件
 ├── docs/
-│   ├── rpa-migration.md # 从传统RPA迁移指南
-│   └── scenarios.md     # 场景示例库
-├── config/
-│   └── cron-examples.md # 定时任务配置示例
-└── scripts/
-    └── healthcheck.sh   # 环境健康检查
+│   ├── architecture.md     # 技术架构（六层 / 28 Skill）
+│   ├── product-functions.md # 产品功能与场景矩阵
+│   ├── rpa-migration.md    # 从传统 RPA 迁移指南
+│   ├── tobacco-scenarios.md # 烟草行业场景覆盖分析
+│   └── *.html / *.pdf      # 产品文档导出版
+├── scripts/
+│   └── install-windows.ps1 # Windows (WSL2) 一键安装器
+├── config/                 # 配置占位目录
+└── skills/                 # Skill 占位目录（实际 Skill 由 Hermes 提供）
 ```
 
 ## 定价定位
