@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova — AI 办公自动化套件 | 自然语言驱动，替代 UiPath / 影刀 / 八爪鱼</title>
+<meta name="description" content="Nova 把 AI Agent 包装成办公自动化套件。说一句话，AI 自己完成整个流程——替代传统 RPA，零学习成本，28+ 预制 Skill 开箱即用。">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html"><span class="logo">N</span> Nova</a>
+    <nav class="nav-links">
+      <a href="#features">核心能力</a>
+      <a href="#skills">Skill 矩阵</a>
+      <a href="#compare">对比 RPA</a>
+      <a href="#scenarios">典型场景</a>
+      <a href="#pricing">购买</a>
+      <a href="demo.html">在线 Demo</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="demo.html">看演示</a>
+      <a class="btn btn-primary" href="#pricing">立即购买</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">AI 办公自动化套件 · 自然语言驱动</span>
+      <h1>说一句话，<br><span class="grad">AI 帮你干完整个流程</span></h1>
+      <p class="sub">传统 RPA 让你「点这个按钮、填那个框」。Nova 不一样——你说人话，它自己理解、决策、跨平台执行。</p>
+      <p class="quote">"帮我把这周飞书文档汇总成 Excel 发给老板"<br>→ Nova 自动找文档、提取内容、生成表格、发送。</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="demo.html">▶ 在线体验 Demo</a>
+        <a class="btn btn-ghost btn-lg" href="#pricing">查看价格</a>
+      </div>
+      <div class="hero-trust">
+        <span><b>28+</b> 预制 Skill</span>
+        <span><b>10+</b> 平台联动</span>
+        <span><b>零</b> 学习成本</span>
+        <span><b>5 分钟</b> 安装上手</span>
+      </div>
+    </div>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="title">nova — 自然语言终端</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">$ nova</span> <span class="t-cmd">"每天早上 9 点抓飞书文档更新，汇总成日报发我"</span></div>
+        <br>
+        <div class="t-step"><span class="ok">✓</span> 解析意图 · 平台=飞书 · 动作=汇总 · 触发=每日 9:00</div>
+        <div class="t-step"><span class="ok">✓</span> 调用 <span class="t-skill">feishu-doc-create</span> · 拉取昨日更新</div>
+        <div class="t-step"><span class="ok">✓</span> 调用 <span class="t-skill">cronjob</span> · 注册定时任务</div>
+        <div class="t-step"><span class="ok">✓</span> AI 提取要点 · 按项目分类</div>
+        <span class="t-result">📋 日报已生成并发送，定时任务已上线<span class="cursor"></span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ── -->
+<section class="section section-soft" style="padding: 56px 0;">
+  <div class="container stats">
+    <div class="stat"><div class="num">28+</div><div class="label">预制 Skill 开箱即用</div></div>
+    <div class="stat"><div class="num">10+</div><div class="label">平台原生联动</div></div>
+    <div class="stat"><div class="num">95%</div><div class="label">行业场景覆盖率</div></div>
+    <div class="stat"><div class="num">¥0</div><div class="label">实施费 / 维护费</div></div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section class="section" id="features">
+  <div class="container center">
+    <span class="eyebrow">为什么是 Nova</span>
+    <h2>七大核心能力，把「自动化」交给 AI</h2>
+    <p class="lead">不是给技术人员用的工具，而是给普通人用的「AI 员工」。会用飞书/微信就能用。</p>
+  </div>
+  <div class="container grid-3">
+    <div class="card"><div class="ico">💬</div><h3>自然语言驱动</h3><p>不写代码、不画流程图、不录制宏。说一句话，AI 自动拆解成多步流程执行。学习成本归零。</p></div>
+    <div class="card"><div class="ico">🔗</div><h3>跨平台智能联动</h3><p>飞书、企业微信、钉钉、Google、Notion、Airtable…… 数据在 10+ 平台间自由流转。</p></div>
+    <div class="card"><div class="ico">⏰</div><h3>定时 + 事件双引擎</h3><p>cronjob 定时触发，webhook 事件驱动。「每天 9 点」「表单提交时」自动跑起来。</p></div>
+    <div class="card"><div class="ico">🧠</div><h3>非结构化数据处理</h3><p>合同、邮件、截图、PDF——AI 原生理解，不靠 OCR 硬凑。这是传统 RPA 永远做不到的。</p></div>
+    <div class="card"><div class="ico">🖥️</div><h3>桌面 GUI 自动化</h3><p>基于 macOS Accessibility，任何软件都能控制：Excel、微信、Photoshop、Keynote。</p></div>
+    <div class="card"><div class="ico">⚖️</div><h3>AI 自主决策</h3><p>价格偏高自动查市场均价、合同有风险自动标红——分支判断是 AI 的默认行为，无需画决策树。</p></div>
+  </div>
+</section>
+
+<!-- ── Skills ── -->
+<section class="section section-soft" id="skills">
+  <div class="container center">
+    <span class="eyebrow">Skill 矩阵</span>
+    <h2>28 个预制 Skill，按「你想干什么」分组</h2>
+    <p class="lead">每个 Skill 都是标准化能力单元，统一输入/输出/错误处理。新平台接入 = 写一段自然语言指令。</p>
+  </div>
+  <div class="container skill-groups">
+    <div class="skill-group">
+      <div class="head"><h3>🏢 办公自动化</h3><span class="count">13 个</span></div>
+      <div class="chips">
+        <span class="chip">feishu-doc-create</span><span class="chip">google-workspace</span><span class="chip">himalaya</span>
+        <span class="chip">notion</span><span class="chip">airtable</span><span class="chip">linear</span>
+        <span class="chip">obsidian</span><span class="chip">apple-notes</span><span class="chip">apple-reminders</span>
+        <span class="chip">powerpoint</span><span class="chip">nano-pdf</span><span class="chip">ocr-and-documents</span><span class="chip">qwenvl-ocr</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="head"><h3>🕷️ 数据采集</h3><span class="count">5 个</span></div>
+      <div class="chips">
+        <span class="chip">agent-reach</span><span class="chip">browser-act</span>
+        <span class="chip">china-web-data-collection</span><span class="chip">wenshu-api-crawl</span><span class="chip">blogwatcher</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="head"><h3>⚡ 自动化引擎</h3><span class="count">4 个</span></div>
+      <div class="chips">
+        <span class="chip">cronjob</span><span class="chip">webhook-subscriptions</span>
+        <span class="chip">macos-computer-use</span><span class="chip">macos-browser-automation</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="head"><h3>📤 内容发布</h3><span class="count">2 个</span></div>
+      <div class="chips">
+        <span class="chip">wechat-article-formatter</span><span class="chip">post-anywhere</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Compare ── -->
+<section class="section" id="compare">
+  <div class="container center">
+    <span class="eyebrow">对比传统 RPA</span>
+    <h2>Nova 真正的竞品，是「还没被自动化的那些事」</h2>
+    <p class="lead">非结构化、跨平台、需要判断力的工作流——拖拽式 RPA 做不到的，正是 Nova 的主场。</p>
+  </div>
+  <div class="container table-wrap">
+    <table>
+      <thead>
+        <tr><th>能力</th><th class="nova">Nova</th><th>UiPath</th><th>影刀</th><th>八爪鱼</th><th>Zapier</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>交互方式</td><td class="nova">自然语言</td><td>拖拽</td><td>拖拽</td><td>配置</td><td>配置</td></tr>
+        <tr><td>非结构化数据</td><td class="nova"><span class="yes">✅ AI 原生</span></td><td class="no">✕</td><td class="no">✕</td><td class="no">✕</td><td class="no">✕</td></tr>
+        <tr><td>桌面 GUI 自动化</td><td class="nova"><span class="yes">✅ macOS</span></td><td>✅ Windows</td><td>✅ Windows</td><td class="no">✕</td><td class="no">✕</td></tr>
+        <tr><td>AI 推理决策</td><td class="nova"><span class="yes">✅ 核心能力</span></td><td class="no">✕ (插件)</td><td class="no">✕</td><td class="no">✕</td><td class="no">✕</td></tr>
+        <tr><td>学习成本</td><td class="nova"><span class="yes">零</span></td><td>高</td><td>中</td><td>中</td><td>低</td></tr>
+        <tr><td>年成本</td><td class="nova">¥19,999 / 5 账号</td><td>$5K+</td><td>¥59,800</td><td>¥1K+</td><td>$20+/月</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── Scenarios ── -->
+<section class="section section-soft" id="scenarios">
+  <div class="container center">
+    <span class="eyebrow">典型场景</span>
+    <h2>说出来，就能跑起来</h2>
+    <p class="lead">这些不是 Demo 脚本，是用户真实说过的话。</p>
+  </div>
+  <div class="container scenario-list">
+    <div class="scenario"><span class="n">1</span><div><div class="say">"每天早上 9 点，抓取我飞书文档昨天的更新，汇总成日报发我"</div><div class="tag">日报自动化 · cronjob + feishu-doc-create</div></div></div>
+    <div class="scenario"><span class="n">2</span><div><div class="say">"每小时检查竞品官网和公众号，有更新就截图总结发飞书"</div><div class="tag">竞品监控 · browser-act + agent-reach</div></div></div>
+    <div class="scenario"><span class="n">3</span><div><div class="say">"爬取裁判文书网 2024 年所有侵犯公民个人信息罪案件，存飞书多维表格"</div><div class="tag">数据采集入库 · wenshu-api-crawl + airtable</div></div></div>
+    <div class="scenario"><span class="n">4</span><div><div class="say">"读取未读邮件，把合同 PDF 附件提取关键条款，汇总成 Excel"</div><div class="tag">邮件批处理 · himalaya + ocr-and-documents</div></div></div>
+    <div class="scenario"><span class="n">5</span><div><div class="say">"把这篇飞书文档转成公众号文章，同步发小红书和知乎"</div><div class="tag">多平台发布 · wechat-article-formatter + post-anywhere</div></div></div>
+    <div class="scenario"><span class="n">6</span><div><div class="say">"这几份合同里哪些条款有法律风险？标红并解释"</div><div class="tag">AI 判断 · ocr-and-documents + LLM 推理</div></div></div>
+  </div>
+  <div class="container center" style="margin-top: 40px;">
+    <a class="btn btn-primary btn-lg" href="demo.html">▶ 打开在线 Demo，亲手试试</a>
+  </div>
+</section>
+
+<!-- ── Pricing ── -->
+<section class="section" id="pricing">
+  <div class="container center">
+    <span class="eyebrow">购买方案</span>
+    <h2>一次投入，替代一整套 RPA + 实施团队</h2>
+    <p class="lead">传统 RPA 三年总成本 ¥54–85 万；Nova 三年 ¥6 万，且零实施、零专人维护。</p>
+  </div>
+  <div class="container pricing">
+    <div class="plan">
+      <div class="pname">单技能版</div>
+      <div class="price">¥2,000<small> / 永久</small></div>
+      <div class="pdesc">按需购买，单个 Skill 永久授权</div>
+      <ul>
+        <li>任选 1 个预制 Skill</li>
+        <li>永久授权，不限时长</li>
+        <li>自然语言驱动</li>
+        <li>社区文档支持</li>
+      </ul>
+      <button class="btn btn-ghost" data-plan="单技能版 · ¥2,000/永久">选择此方案</button>
+    </div>
+    <div class="plan featured">
+      <span class="badge">最受欢迎</span>
+      <div class="pname">全套标准版</div>
+      <div class="price">¥19,999<small> / 年</small></div>
+      <div class="pdesc">5 账号 · 28 Skill 全包</div>
+      <ul>
+        <li>全部 28 个预制 Skill</li>
+        <li>5 个账号授权</li>
+        <li>cronjob + webhook 双引擎</li>
+        <li>macOS 桌面 + 浏览器自动化</li>
+        <li>优先邮件 / 飞书支持</li>
+      </ul>
+      <button class="btn btn-primary" data-plan="全套标准版 · ¥19,999/年 · 5 账号">立即购买</button>
+    </div>
+    <div class="plan">
+      <div class="pname">企业定制版</div>
+      <div class="price">按需<small> 报价</small></div>
+      <div class="pdesc">行业深度适配 + 内部系统对接</div>
+      <ul>
+        <li>含全套标准版能力</li>
+        <li>行业专属场景适配</li>
+        <li>ERP / SCM 内部系统对接</li>
+        <li>专属定制 Skill 开发</li>
+        <li>专人对接 + SLA 保障</li>
+      </ul>
+      <button class="btn btn-ghost" data-plan="企业定制版 · 按需报价">联系销售</button>
+    </div>
+  </div>
+  <p class="container center" style="color: var(--muted); font-size: 14px; margin-top: 24px;">运行需 Hermes 订阅 + 你已有的 AI API Key，无额外平台费用。</p>
+</section>
+
+<!-- ── CTA ── -->
+<section class="section">
+  <div class="container">
+    <div class="cta-band">
+      <h2>把重复的活，交给会说话的 AI</h2>
+      <p>安装 5 分钟，说一句话，立刻开始工作。不用选型、不用部署周期、不用画流程图。</p>
+      <div class="hero-actions" style="justify-content:center;">
+        <a class="btn btn-primary btn-lg" href="demo.html">▶ 在线体验 Demo</a>
+        <a class="btn btn-ghost btn-lg" href="#pricing">查看购买方案</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="col" style="max-width: 280px;">
+        <a class="brand" href="index.html" style="margin-bottom: 12px;"><span class="logo">N</span> Nova</a>
+        <p>把 AI Agent 包装成办公自动化套件。自然语言驱动，替代 UiPath / 影刀 / 八爪鱼。</p>
+      </div>
+      <div class="col">
+        <h4>产品</h4>
+        <a href="#features">核心能力</a>
+        <a href="#skills">Skill 矩阵</a>
+        <a href="#scenarios">典型场景</a>
+        <a href="demo.html">在线 Demo</a>
+      </div>
+      <div class="col">
+        <h4>购买</h4>
+        <a href="#pricing">价格方案</a>
+        <a href="#compare">对比 RPA</a>
+        <a href="#pricing">企业定制</a>
+      </div>
+      <div class="col">
+        <h4>资源</h4>
+        <a href="../docs/architecture.html">技术架构</a>
+        <a href="../docs/product-intro.html">产品介绍</a>
+        <a href="../README.md">安装指南</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Nova · Powered by Hermes Agent</span>
+      <span>自然语言驱动的办公自动化</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Buy modal ── -->
+<div class="modal-overlay" id="buyModal">
+  <div class="modal">
+    <h3>开始购买</h3>
+    <div class="modal-plan" id="modalPlan">全套标准版</div>
+    <div class="qr"><span>扫码咨询 / 下单</span></div>
+    <p>微信扫码联系顾问，确认方案后即可开通。<br>企业定制将由专属顾问 1 对 1 对接。</p>
+    <button class="btn btn-ghost close" id="modalClose">关闭</button>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('buyModal');
+  const modalPlan = document.getElementById('modalPlan');
+  document.querySelectorAll('[data-plan]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      modalPlan.textContent = btn.getAttribute('data-plan');
+      modal.classList.add('open');
+    });
+  });
+  const closeModal = () => modal.classList.remove('open');
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+
+</body>
+</html>

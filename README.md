@@ -101,19 +101,26 @@ nova "你的需求"
 
 ```
 Nova/
-├── install.sh              # macOS 一键安装器（含 --dmg 打包）
-├── README.md               # 本文件
-├── docs/
-│   ├── architecture.md     # 技术架构（六层 / 28 Skill）
-│   ├── product-functions.md # 产品功能与场景矩阵
-│   ├── rpa-migration.md    # 从传统 RPA 迁移指南
-│   ├── tobacco-scenarios.md # 烟草行业场景覆盖分析
-│   └── *.html / *.pdf      # 产品文档导出版
-├── scripts/
-│   └── install-windows.ps1 # Windows (WSL2) 一键安装器
-├── config/                 # 配置占位目录
-└── skills/                 # Skill 占位目录（实际 Skill 由 Hermes 提供）
+├── README.md                   # 本文件
+├── code/                       # Nova 源代码（安装器 + 配置/Skill 脚手架）
+│   ├── install.sh              # macOS 一键安装器（含 --dmg 打包）
+│   ├── scripts/
+│   │   └── install-windows.ps1 # Windows (WSL2) 一键安装器
+│   ├── config/                 # 配置占位目录
+│   └── skills/                 # Skill 占位目录（实际 Skill 由 Hermes 提供）
+├── site/                       # 官网（部署到 Vercel）
+│   ├── index.html              # 落地页 / 购买
+│   ├── demo.html               # 在线交互 Demo
+│   └── assets/                 # 样式与脚本
+└── docs/
+    ├── architecture.md         # 技术架构（六层 / 28 Skill）
+    ├── product-functions.md    # 产品功能与场景矩阵
+    ├── rpa-migration.md        # 从传统 RPA 迁移指南
+    ├── tobacco-scenarios.md    # 烟草行业场景覆盖分析
+    └── *.html / *.pdf          # 产品文档导出版
 ```
+
+> 安装命令相应变为 `bash code/install.sh`。
 
 ## 定价定位
 

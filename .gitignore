@@ -1,0 +1,9 @@
+# Vercel
+.vercel
+
+# OS / editor
+.DS_Store
+
+# Build artifacts
+*.dmg
+generated-images/

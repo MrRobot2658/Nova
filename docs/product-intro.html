@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova 产品介绍 — AI 办公自动化套件</title>
+<style>
+@page { size: A4; margin: 0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: #ffffff;
+  color: #1a1a1a;
+  line-height: 1.7;
+}
+
+/* ── Cover Page ── */
+.cover {
+  height: 297mm;
+  width: 210mm;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  page-break-after: always;
+  position: relative;
+  overflow: hidden;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.cover::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.cover-content { position: relative; z-index: 1; }
+.cover-tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6366f1;
+  background: rgba(99,102,241,0.1);
+  padding: 6px 20px;
+  border-radius: 20px;
+  letter-spacing: 0.1em;
+  margin-bottom: 32px;
+}
+.cover h1 {
+  font-size: 54px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.cover .subtitle {
+  font-size: 20px;
+  color: #475569;
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+.cover .tagline {
+  font-size: 15px;
+  color: #6366f1;
+  font-weight: 600;
+  font-style: italic;
+  margin-bottom: 60px;
+}
+.cover .meta {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ── Section Page ── */
+.page {
+  width: 210mm;
+  margin: 0 auto;
+  padding: 48px 52px;
+  page-break-after: always;
+  background: #ffffff;
+}
+.page:last-child { page-break-after: auto; }
+
+.section-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 3px solid #6366f1;
+}
+.section-title span { color: #6366f1; }
+
+/* ── Problem/Solution ── */
+.problem-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.problem-box h3 { color: #991b1b; font-size: 15px; margin-bottom: 8px; }
+.problem-box p { color: #7f1d1d; font-size: 13px; line-height: 1.8; }
+.solution-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.solution-box h3 { color: #166534; font-size: 15px; margin-bottom: 8px; }
+.solution-box p { color: #14532d; font-size: 13px; line-height: 1.8; }
+
+/* ── Comparison Table ── */
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 24px 0;
+  font-size: 13px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+.compare-table th {
+  background: #f8fafc;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 12px;
+}
+.compare-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .highlight { background: #eef2ff; font-weight: 600; }
+.compare-table .check { color: #22c55e; font-weight: 700; }
+.compare-table .cross { color: #ef4444; }
+
+/* ── Scenario Grid ── */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 24px 0;
+}
+.scenario-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+}
+.scenario-card .dept {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.scenario-card .scene {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+.scenario-card .detail {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.8;
+}
+.scenario-card .skills {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.skill-tag {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+/* ── Pricing ── */
+.pricing-box {
+  background: #ffffff;
+  border: 2px solid #6366f1;
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  margin: 32px 0;
+}
+.pricing-box .price {
+  font-size: 48px;
+  font-weight: 800;
+  color: #6366f1;
+}
+.pricing-box .price-label {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 4px;
+}
+.pricing-box .includes {
+  font-size: 13px;
+  color: #475569;
+  margin-top: 16px;
+}
+.pricing-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 24px 0;
+}
+.price-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+.price-card h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+.price-card .amount { font-size: 32px; font-weight: 800; color: #6366f1; }
+.price-card .unit { font-size: 13px; color: #64748b; margin-top: 4px; }
+.price-card .features { font-size: 12px; color: #475569; margin-top: 12px; line-height: 2; }
+
+/* ── Stats ── */
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin: 24px 0;
+}
+.stat-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+.stat-item .num {
+  font-size: 32px;
+  font-weight: 800;
+  color: #6366f1;
+}
+.stat-item .label {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* ── CTA ── */
+.cta {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  margin: 32px 0;
+}
+.cta h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.cta p { font-size: 13px; opacity: 0.9; }
+
+/* ── Footer ── */
+.footer-line {
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 40px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ Cover ═══ -->
+<div class="cover">
+  <div class="cover-content">
+    <div class="cover-tag">AI 办公自动化套件</div>
+    <h1>Nova</h1>
+    <div class="subtitle">自然语言驱动 · 28 预制 Skill · 多 Agent 协同 · macOS / Windows 双平台</div>
+    <div class="tagline">"把飞书/企业微信/钉钉的消息自动汇总成周报"</div>
+    <div class="meta">Hermes Agent Powered · 2026 · v1.0</div>
+  </div>
+</div>
+
+<!-- ═══ Section 1: 痛点 ═══ -->
+<div class="page">
+  <div class="section-num">Section 01</div>
+  <div class="section-title">传统 RPA 的 <span>三大死结</span></div>
+
+  <div class="problem-box">
+    <h3>❌ 死结一：只能处理结构化流程</h3>
+    <p>UiPath、影刀、八爪鱼依赖选择器定位界面元素。一旦页面结构变了、数据不是表格、内容需要理解——立刻崩溃。非结构化文档（PDF合同、邮件正文、截图）完全无力。</p>
+  </div>
+
+  <div class="problem-box">
+    <h3>❌ 死结二：学习成本高、维护噩梦</h3>
+    <p>学一个 RPA 平台要 2-4 周。写一个流程要画几十个节点的流程图。界面一改，整个流程重录。一个企业养 2-3 个 RPA 工程师是标配。</p>
+  </div>
+
+  <div class="problem-box">
+    <h3>❌ 死结三：跨系统联动靠 API 对接</h3>
+    <p>飞书 / 企业微信 / 钉钉 → 邮件 → 公众号 → 小红书？传统 RPA 的「连接器」数量有限，没开发的平台就接不了。想做一条跨 5 个平台的工作流？先写 5 个 API 对接。</p>
+  </div>
+
+  <div class="solution-box" style="margin-top: 32px;">
+    <h3>✅ Nova 的答案</h3>
+    <p>不要拖拽，不要选择器，不要连接器。<br>你说话，AI 理解，Skill 执行。</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-item"><div class="num">无需</div><div class="label">培训上手</div></div>
+    <div class="stat-item"><div class="num">28</div><div class="label">预制 Skill</div></div>
+    <div class="stat-item"><div class="num">10+</div><div class="label">集成平台</div></div>
+    <div class="stat-item"><div class="num">双平台</div><div class="label">macOS · Windows</div></div>
+  </div>
+</div>
+
+<!-- ═══ Section 2: 架构 ═══ -->
+<div class="page">
+  <div class="section-num">Section 02</div>
+  <div class="section-title"><span>六层架构</span> · 技术总览</div>
+
+  <p style="font-size:14px;color:#475569;margin-bottom:24px;">Nova 基于 Hermes Agent 引擎，六层架构从用户输入到平台集成全链路覆盖。不重复造轮子，聚焦 Skill 封装和分发。</p>
+
+  <table class="compare-table">
+    <tr><th style="width:60px;">层级</th><th style="width:140px;">模块</th><th>核心能力</th></tr>
+    <tr><td style="font-weight:700;color:#6366f1;">L1</td><td>CLI & 安装器</td><td>nova 命令 · install.sh 一键部署 · 健康检查</td></tr>
+    <tr><td style="font-weight:700;color:#6366f1;">L2</td><td>Agent Core</td><td>自然语言解析 · 意图路由 · 上下文记忆 · 多模型路由</td></tr>
+    <tr><td style="font-weight:700;color:#6366f1;">L3</td><td>Skill 系统</td><td>28 预制 Skill · 办公/采集/引擎/发布四大分组</td></tr>
+    <tr><td style="font-weight:700;color:#6366f1;">L4</td><td>AI 引擎</td><td>DeepSeek V4 主力推理 · QwenVL 视觉理解 · TTS</td></tr>
+    <tr><td style="font-weight:700;color:#6366f1;">L5</td><td>Runtime</td><td>cronjob 定时器 · webhook 事件触发 · macOS 桌面控制</td></tr>
+    <tr><td style="font-weight:700;color:#6366f1;">L6</td><td>集成目标</td><td>飞书 · 企业微信 · 钉钉 · Google · 邮件 · 公众号 · 小红书 · 桌面 GUI</td></tr>
+  </table>
+
+  <p style="font-size:13px;color:#64748b;margin-top:24px;">关键设计：L2 以下全部复用 Hermes 已有能力（Agent 引擎、模型路由、记忆系统、调度引擎）。Nova 的增量价值在 L3（28 个行业 Skill 封装）和 L1（一键安装 + 极简操作体验）。</p>
+
+  <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:10px;padding:20px;margin-top:16px;">
+    <p style="font-size:15px;font-weight:700;color:#7c3aed;margin-bottom:8px;">🔗 多 Agent 协同调度</p>
+    <p style="font-size:13px;color:#581c87;line-height:1.9;">
+      Nova 的 28 个 Skill 以标准化接口暴露，可被任何 AI Agent 直接调用：<br>
+      你在 <strong>Codex CLI</strong> 里写完代码，直接让它调 Nova 发飞书通知团队<br>
+      你在 <strong>Claude Code</strong> 里 Review 完 PR，直接让它调 Nova 同步到 Linear<br>
+      你在 <strong>Trae</strong> 里生成前端页面，直接让它调 Nova 发布到公众号<br>
+      <strong>WorkBuddy</strong> 追踪到任务完成，自动调 Nova 发邮件汇报<br>
+      Nova = AI Agent 的办公自动化基础设施。
+    </p>
+  </div>
+</div>
+
+<!-- ═══ Section 3: 烟草场景 ═══ -->
+<div class="page">
+  <div class="section-num">Section 03</div>
+  <div class="section-title">烟草行业 <span>场景覆盖</span></div>
+
+  <p style="font-size:14px;color:#475569;margin-bottom:20px;">烟草行业具有高度监管、多层分销、专卖体制三大特征。Nova 的 28 个 Skill 可覆盖烟草企业 8 大部门 20+ 核心场景。</p>
+
+  <div class="scenario-grid">
+    <div class="scenario-card">
+      <div class="dept">专卖监督管理</div>
+      <div class="scene">涉烟案件情报监测</div>
+      <div class="detail">裁判文书网批量采集涉烟案件 · 全网假烟/走私烟舆情监控 · 各省烟草局公告自动汇总</div>
+      <div class="skills"><span class="skill-tag">wenshu-api-crawl</span><span class="skill-tag">agent-reach</span><span class="skill-tag">cronjob</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">专卖监督管理</div>
+      <div class="scene">许可证全生命周期管理</div>
+      <div class="detail">零售许可证到期自动提醒 · 异常经营定时巡检 · 许可证数据自动录入飞书表格</div>
+      <div class="skills"><span class="skill-tag">cronjob</span><span class="skill-tag">browser-act</span><span class="skill-tag">feishu-doc-create</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">卷烟营销</div>
+      <div class="scene">零售终端价格监测</div>
+      <div class="detail">定时爬取各省烟草交易平台价格 · 与指导价自动比对 · 异常波动飞书告警</div>
+      <div class="skills"><span class="skill-tag">browser-act</span><span class="skill-tag">cronjob</span><span class="skill-tag">webhook</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">卷烟营销</div>
+      <div class="scene">竞品/新品市场调研</div>
+      <div class="detail">13 平台自动搜索竞品动态 · 社交媒体舆情分析 · 行业报告自动采集汇总</div>
+      <div class="skills"><span class="skill-tag">agent-reach</span><span class="skill-tag">china-web-data-collection</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">烟叶管理</div>
+      <div class="scene">收购单/质检单数字化</div>
+      <div class="detail">纸质收购单 OCR 识别 · 质检报告自动录入数据库 · 等级/批次自动归类</div>
+      <div class="skills"><span class="skill-tag">ocr-and-documents</span><span class="skill-tag">qwenvl-ocr</span><span class="skill-tag">airtable</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">烟叶管理</div>
+      <div class="scene">收购进度自动报表</div>
+      <div class="detail">每日收购数据汇总 · 自动生成飞书报表 · 与历史同期自动对比</div>
+      <div class="skills"><span class="skill-tag">feishu-doc-create</span><span class="skill-tag">cronjob</span><span class="skill-tag">airtable</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">物流配送</div>
+      <div class="scene">配送异常自动告警</div>
+      <div class="detail">物流状态定时检查 · 延迟/错发自动飞书通知 · 配送完成自动确认</div>
+      <div class="skills"><span class="skill-tag">webhook</span><span class="skill-tag">cronjob</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">财务管理</div>
+      <div class="scene">发票/凭证批量处理</div>
+      <div class="detail">发票 OCR 识别 · 银行回单自动归档 · 月度对账自动校验</div>
+      <div class="skills"><span class="skill-tag">ocr-and-documents</span><span class="skill-tag">feishu-doc-create</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">人事/办公</div>
+      <div class="scene">公文自动流转</div>
+      <div class="detail">邮件自动分类+归档 · 飞书通知自动转发 · 汇报 PPT 一键生成</div>
+      <div class="skills"><span class="skill-tag">himalaya</span><span class="skill-tag">powerpoint</span><span class="skill-tag">feishu-doc-create</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">政策法规</div>
+      <div class="scene">法规更新实时追踪</div>
+      <div class="detail">国家烟草专卖局官网监控 · 行业政策变更自动推送 · 法律文书归档检索</div>
+      <div class="skills"><span class="skill-tag">blogwatcher</span><span class="skill-tag">agent-reach</span><span class="skill-tag">cronjob</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">信息中心</div>
+      <div class="scene">系统巡检 + 数据备份</div>
+      <div class="detail">定时巡检服务器状态 · 数据库自动备份校验 · 异常自动告警</div>
+      <div class="skills"><span class="skill-tag">cronjob</span><span class="skill-tag">webhook</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="dept">跨部门</div>
+      <div class="scene">行业数据中台</div>
+      <div class="detail">生产/销售/库存/专卖 多源数据统一汇总 · 跨部门数据自动同步 · 领导看板定时推送</div>
+      <div class="skills"><span class="skill-tag">feishu-doc-create</span><span class="skill-tag">airtable</span><span class="skill-tag">cronjob</span></div>
+    </div>
+  </div>
+
+  <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:16px 20px;margin-top:20px;">
+    <p style="font-size:13px;color:#4338ca;"><strong>覆盖率：</strong>烟草行业 8 大部门 20+ 核心场景中，Nova 可覆盖 <strong>19/20（95%）</strong>。唯一未覆盖的是需要对接内部 ERP/SCM 系统的深度集成场景——这属于二开范畴。</p>
+  </div>
+</div>
+
+<!-- ═══ Section 4: 核心功能 ═══ -->
+<div class="page">
+  <div class="section-num">Section 04</div>
+  <div class="section-title">八大 <span>核心功能</span></div>
+
+  <table class="compare-table">
+    <tr><th style="width:20px;">#</th><th>功能</th><th>传统 RPA</th><th>Nova</th></tr>
+    <tr><td style="font-weight:700;">1</td><td>自然语言驱动</td><td class="cross">拖拽编程，学 2-4 周</td><td class="check">自然语言，即刻执行</td></tr>
+    <tr><td style="font-weight:700;">2</td><td>跨平台联动</td><td class="cross">有限连接器</td><td class="check">飞书/企业微信/钉钉 → 邮件 → 公众号 一键流转</td></tr>
+    <tr><td style="font-weight:700;">3</td><td>定时+事件双引擎</td><td class="cross">定时器</td><td class="check">cronjob + webhook 双触发</td></tr>
+    <tr><td style="font-weight:700;">4</td><td>非结构化处理</td><td class="cross">OCR 硬凑，复杂内容崩溃</td><td class="check">AI 原生理解 PDF/邮件/图片</td></tr>
+    <tr><td style="font-weight:700;">5</td><td>桌面 GUI 自动化</td><td class="cross">仅限 Windows</td><td class="check">macOS 任何软件都能控</td></tr>
+    <tr><td style="font-weight:700;">6</td><td>AI 自主决策</td><td class="cross">需手画决策树</td><td class="check">价格异常→自动查市价→生成建议</td></tr>
+    <tr><td style="font-weight:700;">7</td><td>开箱即用</td><td class="cross">部署 6-8 周</td><td class="check">macOS .dmg / Windows .exe 一键安装</td></tr>
+    <tr><td style="font-weight:700;">8</td><td>多 Agent 协同</td><td class="cross">❌ 无</td><td class="check">Codex/Claude Code/Trae 等 Agent 可直接调用 Nova</td></tr>
+  </table>
+
+  <div style="margin-top:32px;">
+    <p style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:12px;">28 个预制 Skill 四大分组</p>
+    <div class="scenario-grid">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;">
+        <p style="font-weight:700;color:#166534;margin-bottom:4px;">🏢 办公自动化 ×13</p>
+        <p style="font-size:12px;color:#14532d;">飞书/企业微信/钉钉 · Google Workspace · 邮件 · Notion · Airtable · Linear · Obsidian · Apple 备忘录 · PPT · PDF · OCR</p>
+      </div>
+      <div style="background:#ecfeff;border:1px solid #a5f3fc;border-radius:10px;padding:16px;">
+        <p style="font-weight:700;color:#0e7490;margin-bottom:4px;">🕷️ 数据采集 ×5</p>
+        <p style="font-size:12px;color:#155e75;">全网调研(13平台) · 浏览器自动化 · 国内反爬 · 裁判文书 · RSS 监控</p>
+      </div>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:16px;">
+        <p style="font-weight:700;color:#9a3412;margin-bottom:4px;">⚡ 自动化引擎 ×4</p>
+        <p style="font-size:12px;color:#7c2d12;">cronjob 定时 · webhook 事件 · macOS 桌面 · 浏览器控制</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:10px;padding:16px;">
+        <p style="font-weight:700;color:#7c3aed;margin-bottom:4px;">📤 内容发布 ×2</p>
+        <p style="font-size:12px;color:#581c87;">公众号排版 · 多平台一键发布(小红书/视频号/Twitter)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Section 5: Pricing ═══ -->
+<div class="page">
+  <div class="section-num">Section 05</div>
+  <div class="section-title"><span>定价方案</span></div>
+
+  <div class="pricing-box">
+    <div class="price">¥19,999</div>
+    <div class="price-label">/ 年 · 5 个账号</div>
+    <div class="includes">包含全部 28 个预制 Skill · 无限次使用 · 月度 Skill 更新 · 企业飞书群技术支持</div>
+  </div>
+
+  <div class="pricing-cards">
+    <div class="price-card" style="border:1px solid #e2e8f0;">
+      <h3>单 Skill 购买</h3>
+      <div class="amount">¥2,000</div>
+      <div class="unit">/ 个 · 永久使用</div>
+      <div class="features">只买需要的<br>可混搭<br>含一次远程部署协助</div>
+    </div>
+    <div class="price-card" style="border:1px solid #e2e8f0;">
+      <h3>企业定制开发</h3>
+      <div class="amount" style="font-size:22px;">按需报价</div>
+      <div class="unit">定制 Skill 开发 · 私有化部署 · SLA</div>
+      <div class="features">烟草/政务/金融行业深度适配<br>内部系统对接<br>定制数据采集管道</div>
+    </div>
+  </div>
+
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-top:24px;">
+    <p style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px;">💰 对比传统 RPA</p>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;">
+      <tr><td style="padding:6px 0;color:#475569;">UiPath 一个 License</td><td style="text-align:right;color:#ef4444;font-weight:600;">$5,000-10,000/年</td></tr>
+      <tr><td style="padding:6px 0;color:#475569;">影刀 企业版（5 账号）</td><td style="text-align:right;color:#ef4444;font-weight:600;">¥59,800/年</td></tr>
+      <tr><td style="padding:6px 0;color:#475569;">RPA 实施费（流程开发+部署）</td><td style="text-align:right;color:#ef4444;font-weight:600;">¥3-10万 一次性</td></tr>
+      <tr><td style="padding:6px 0;color:#475569;">RPA 工程师年薪</td><td style="text-align:right;color:#ef4444;font-weight:600;">¥15-25万/年</td></tr>
+      <tr style="border-top:2px solid #22c55e;"><td style="padding:8px 0;color:#166534;font-weight:700;">Nova 全套 5 账号</td><td style="text-align:right;color:#22c55e;font-weight:700;font-size:14px;">¥19,999/年</td></tr>
+      <tr><td style="padding:6px 0;color:#166534;">Nova 典型年化总成本</td><td style="text-align:right;color:#22c55e;font-weight:600;">¥19,999（无需实施费、无需专人维护）</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ Section 6: Why Nova ═══ -->
+<div class="page">
+  <div class="section-num">Section 06</div>
+  <div class="section-title">为什么选择 <span>Nova</span></div>
+
+  <div class="solution-box" style="margin-bottom:16px;">
+    <h3>🎯 不是工具，是员工</h3>
+    <p>传统 RPA 是「给你一个锤子，你自己去钉钉子」。Nova 是「你说要挂幅画，AI 自己去拿锤子钉子梯子，挂好了告诉你」。不需要学怎么用锤子。</p>
+  </div>
+
+  <div class="solution-box" style="margin-bottom:16px;">
+    <h3>💰 年节约 200+ 人天</h3>
+    <p>传统 RPA 一个流程开发需 10-20 人天，日常维护月均 2-3 人天。Nova 自然语言驱动，一个流程从描述到上线不超过半天，年节约 200+ 人天，让团队聚焦高价值工作。</p>
+  </div>
+
+  <div class="solution-box" style="margin-bottom:16px;">
+    <h3>🔒 数据不出你的机器</h3>
+    <p>Nova 跑在你的 Mac 上。所有操作都在本地执行，敏感数据不经过第三方服务器。烟草行业的合规要求？满足。</p>
+  </div>
+
+  <div class="solution-box" style="margin-bottom:16px;background:#faf5ff;border:1px solid #e9d5ff;">
+    <h3>🤖 AI Agent 即插即用的办公自动化后端</h3>
+    <p>Nova 的 28 个 Skill 以标准化 API 暴露，任何 AI Agent 都能直接调用：<br>
+    <strong>Codex CLI</strong> 写完功能代码 → 调 Nova 生成飞书 release notes<br>
+    <strong>Claude Code</strong> Review 完 PR → 调 Nova 同步到 Linear + 通知群<br>
+    <strong>Trae</strong> 生成 UI 页面 → 调 Nova 一键发布到公众号<br>
+    <strong>WorkBuddy</strong> 追踪任务状态 → 任务完成时调 Nova 自动发周报<br>
+    Nova = AI Agent 的办公自动化基础设施，不是工具，是平台。</p>
+  </div>
+
+  <div class="solution-box" style="margin-bottom:16px;">
+    <h3>🚀 烟厂 / 烟草局 / 烟草公司通用</h3>
+    <p>烟叶采购基地、卷烟厂、省市级烟草局、烟草物流公司——Nova 的 28 个 Skill 覆盖烟草产业链上中下游。专卖执法查案文书、零售终端价格监控、烟叶收购报表、政策法规追踪，一天配完。</p>
+  </div>
+
+  <div class="cta">
+    <h3>开始你的第一个 AI 自动化流程</h3>
+    <p>macOS: 双击 Nova.dmg → Windows: 双击 Nova-Setup.exe → 输入你的需求</p>
+  </div>
+
+  <div class="footer-line">
+    Nova · Hermes Agent Powered · 2026<br>
+    产品咨询：飞书搜索「雷的产品架构」公众号
+  </div>
+</div>
+
+</body>
+</html>

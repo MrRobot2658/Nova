@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova 在线 Demo — 自然语言驱动的办公自动化演示</title>
+<meta name="description" content="选一个场景，看 Nova 如何把一句话拆解成多步流程、调用 Skill、跨平台执行，并产出结果。">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .demo-hero { padding: 64px 0 24px; text-align: center; }
+  .demo-hero h1 { font-size: clamp(30px, 4.5vw, 46px); line-height: 1.15; letter-spacing: -.02em; }
+  .demo-hero h1 .grad { background: linear-gradient(120deg, var(--indigo), var(--emerald)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .demo-hero p { color: var(--muted); font-size: 18px; margin-top: 14px; }
+  .demo-wrap { padding-bottom: 96px; }
+  .scenario-chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 28px 0 32px; }
+  .schip { cursor: pointer; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink-2); transition: all .18s ease; }
+  .schip:hover { border-color: var(--indigo); color: var(--indigo); transform: translateY(-1px); }
+  .schip.active { background: var(--indigo); color: #fff; border-color: var(--indigo); box-shadow: 0 6px 18px rgba(99,102,241,.35); }
+  .demo-terminal { max-width: 820px; margin: 0 auto; }
+  .demo-terminal .terminal-body { min-height: 420px; }
+  .custom-row { max-width: 820px; margin: 22px auto 0; display: flex; gap: 12px; }
+  .custom-row input { flex: 1; font-size: 15px; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--line); font-family: inherit; outline: none; transition: border-color .2s; }
+  .custom-row input:focus { border-color: var(--indigo); }
+  .demo-note { max-width: 820px; margin: 16px auto 0; color: var(--muted); font-size: 13px; text-align: center; }
+  .fade-in { animation: fadeUp .35s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .replay { display: inline-flex; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html"><span class="logo">N</span> Nova</a>
+    <nav class="nav-links">
+      <a href="index.html#features">核心能力</a>
+      <a href="index.html#skills">Skill 矩阵</a>
+      <a href="index.html#compare">对比 RPA</a>
+      <a href="index.html#scenarios">典型场景</a>
+      <a href="index.html#pricing">购买</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-primary" href="index.html#pricing">立即购买</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── Demo hero ── -->
+<section class="demo-hero">
+  <div class="container">
+    <span class="eyebrow">在线 Demo · 模拟演示</span>
+    <h1>选一个场景，看 <span class="grad">Nova 自己干完</span></h1>
+    <p>从一句话到跨平台执行——观察 AI 如何解析意图、调度 Skill、产出结果。</p>
+  </div>
+</section>
+
+<!-- ── Demo ── -->
+<section class="demo-wrap">
+  <div class="container">
+    <div class="scenario-chips" id="chips"></div>
+
+    <div class="demo-terminal terminal">
+      <div class="terminal-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="title">nova — 自然语言终端</span>
+        <span class="title replay" id="replay" style="margin-left:auto;">↻ 重播</span>
+      </div>
+      <div class="terminal-body" id="screen"></div>
+    </div>
+
+    <div class="custom-row">
+      <input id="customInput" type="text" placeholder='或者自己说一句，例如：把这份 PDF 里的表格提取到飞书多维表格' />
+      <button class="btn btn-primary" id="runCustom">运行</button>
+    </div>
+    <p class="demo-note">这是前端模拟演示，用于展示交互流程与 Skill 调度逻辑；真实执行需安装 Nova（Hermes Agent）。</p>
+
+    <div class="container center" style="margin-top: 56px;">
+      <a class="btn btn-primary btn-lg" href="index.html#pricing">喜欢？查看购买方案 →</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-bottom">
+    <span>© 2026 Nova · Powered by Hermes Agent</span>
+    <a href="index.html">返回首页</a>
+  </div>
+</footer>
+
+<script src="assets/demo.js"></script>
+</body>
+</html>

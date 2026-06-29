@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova 技术架构</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: #f8fafc;
+  color: #0f172a;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.container { max-width: 900px; margin: 0 auto; }
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.header .dot {
+  width: 8px; height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity:1; transform: scale(1); }
+  50% { opacity:0.4; transform: scale(1.6); }
+}
+.header p {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+/* Diagram card */
+.diagram-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Layer */
+.layer {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+.layer-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.layer-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.layer-tag.entry   { background:#f0fdf4; color:#166534; border:1px solid #86efac; }
+.layer-tag.core    { background:#faf5ff; color:#7c3aed; border:1px solid #c084fc; }
+.layer-tag.skills  { background:#ecfeff; color:#0e7490; border:1px solid #22d3ee; }
+.layer-tag.ai      { background:#fefce8; color:#854d0e; border:1px solid #fde047; }
+.layer-tag.runtime { background:#fff7ed; color:#9a3412; border:1px solid #fdba74; }
+.layer-tag.targets { background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; }
+
+.layer-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.layer-desc {
+  font-size: 0.65rem;
+  color: #64748b;
+  margin-left: auto;
+}
+
+.layer-boxes {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.box {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  flex: 1;
+  min-width: 140px;
+  transition: border-color 0.2s;
+}
+.box:hover { border-color: #94a3b8; }
+.box-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.2rem;
+}
+.box-desc {
+  font-size: 0.6rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Arrow row */
+.arrow-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.1rem 0.5rem;
+}
+.arrow-line {
+  flex: 1;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
+}
+.arrow-label {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+/* Summary cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.summary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+.summary-card h3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+.summary-card .card-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+.card-dot.green  { background:#22c55e; }
+.card-dot.purple { background:#a855f7; }
+.summary-card ul {
+  list-style: none;
+  font-size: 0.65rem;
+  color: #475569;
+  line-height: 1.8;
+}
+.summary-card li::before {
+  content: '·';
+  color: #94a3b8;
+  margin-right: 0.4rem;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  font-size: 0.6rem;
+  color: #94a3b8;
+  margin-top: 2rem;
+}
+
+/* Skill count badge */
+.skill-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1><span class="dot"></span>Nova 技术架构</h1>
+  <p>六层架构 · 28 预制 Skill · AI 原生 RPA 替代品</p>
+</div>
+
+<!-- Diagram -->
+<div class="diagram-card">
+
+  <!-- L1 -->
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-tag entry">L1</span>
+      <span class="layer-name">CLI & 安装器</span>
+      <span class="layer-desc">用户入口</span>
+    </div>
+    <div class="layer-boxes">
+      <div class="box">
+        <div class="box-name">nova</div>
+        <div class="box-desc">自然语言终端<br>nova "帮我做XXX"</div>
+      </div>
+      <div class="box">
+        <div class="box-name">install.sh</div>
+        <div class="box-desc">一键安装部署<br>环境检测 → 依赖 → 验证</div>
+      </div>
+      <div class="box">
+        <div class="box-name">healthcheck</div>
+        <div class="box-desc">健康检查<br>Python/Node/网络/API Key</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row">
+    <div class="arrow-line"></div>
+    <span class="arrow-label">指令解析 ↓</span>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- L2 -->
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-tag core">L2</span>
+      <span class="layer-name">Hermes Agent Core</span>
+      <span class="layer-desc">智能调度引擎</span>
+    </div>
+    <div class="layer-boxes">
+      <div class="box">
+        <div class="box-name">NL 解析</div>
+        <div class="box-desc">意图识别<br>参数提取</div>
+      </div>
+      <div class="box">
+        <div class="box-name">模型路由</div>
+        <div class="box-desc">DeepSeek V4<br>MiniMax · Qwen</div>
+      </div>
+      <div class="box">
+        <div class="box-name">上下文记忆</div>
+        <div class="box-desc">跨轮对话<br>偏好持久化</div>
+      </div>
+      <div class="box">
+        <div class="box-name">工具调度</div>
+        <div class="box-desc">Skill 编排<br>错误自愈</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row">
+    <div class="arrow-line"></div>
+    <span class="arrow-label">Skill 调用 ↓</span>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- L3 -->
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-tag skills">L3</span>
+      <span class="layer-name">Skill 系统</span>
+      <span class="layer-desc">28 预制能力单元</span>
+    </div>
+    <div class="layer-boxes">
+      <div class="box">
+        <div class="box-name">🏢 办公自动化</div>
+        <div class="box-desc">飞书 · Google · Notion<br>邮件 · PPT · PDF · OCR<br><span class="skill-count">13 Skills</span></div>
+      </div>
+      <div class="box">
+        <div class="box-name">🕷️ 数据采集</div>
+        <div class="box-desc">全网调研 · 浏览器自动化<br>国内反爬 · 裁判文书<br><span class="skill-count">5 Skills</span></div>
+      </div>
+      <div class="box">
+        <div class="box-name">⚡ 自动化引擎</div>
+        <div class="box-desc">cronjob · webhook<br>macOS 桌面 · 浏览器<br><span class="skill-count">4 Skills</span></div>
+      </div>
+      <div class="box">
+        <div class="box-name">📤 内容发布</div>
+        <div class="box-desc">公众号排版<br>多平台一键发布<br><span class="skill-count">2 Skills</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row">
+    <div class="arrow-line"></div>
+    <span class="arrow-label">AI 推理 ↓</span>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- L4 -->
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-tag ai">L4</span>
+      <span class="layer-name">AI 引擎</span>
+      <span class="layer-desc">核心智能层</span>
+    </div>
+    <div class="layer-boxes">
+      <div class="box">
+        <div class="box-name">LLM 推理</div>
+        <div class="box-desc">DeepSeek V4 · MiniMax<br>Qwen 容灾降级</div>
+      </div>
+      <div class="box">
+        <div class="box-name">视觉理解</div>
+        <div class="box-desc">QwenVL OCR<br>图片/截图/PDF 识别</div>
+      </div>
+      <div class="box">
+        <div class="box-name">TTS 语音</div>
+        <div class="box-desc">Edge · OpenAI<br>文本转语音输出</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row">
+    <div class="arrow-line"></div>
+    <span class="arrow-label">执行调度 ↓</span>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- L5 -->
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-tag runtime">L5</span>
+      <span class="layer-name">Runtime & 调度</span>
+      <span class="layer-desc">持续运行引擎</span>
+    </div>
+    <div class="layer-boxes">
+      <div class="box">
+        <div class="box-name">cronjob</div>
+        <div class="box-desc">定时触发<br>每天/每小时/每周</div>
+      </div>
+      <div class="box">
+        <div class="box-name">webhook</div>
+        <div class="box-desc">事件触发<br>表单提交 → 自动处理</div>
+      </div>
+      <div class="box">
+        <div class="box-name">computer_use</div>
+        <div class="box-desc">macOS 桌面 GUI<br>任何软件都能控制</div>
+      </div>
+      <div class="box">
+        <div class="box-name">browser-act</div>
+        <div class="box-desc">浏览器自动化<br>JS 渲染 · 动态页面</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row">
+    <div class="arrow-line"></div>
+    <span class="arrow-label">输出集成 ↓</span>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- L6 -->
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-tag targets">L6</span>
+      <span class="layer-name">集成目标</span>
+      <span class="layer-desc">对外连接层</span>
+    </div>
+    <div class="layer-boxes">
+      <div class="box">
+        <div class="box-name">📋 办公平台</div>
+        <div class="box-desc">飞书 · 企业微信 · 钉钉<br>Google · Notion · Airtable</div>
+      </div>
+      <div class="box">
+        <div class="box-name">📱 内容平台</div>
+        <div class="box-desc">公众号 · 小红书<br>视频号 · Twitter</div>
+      </div>
+      <div class="box">
+        <div class="box-name">📧 通讯</div>
+        <div class="box-desc">邮件 (IMAP/SMTP)<br>Linear 项目管理</div>
+      </div>
+      <div class="box">
+        <div class="box-name">💻 系统</div>
+        <div class="box-desc">macOS 桌面<br>文件系统 · 浏览器</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Summary cards -->
+<div class="summary-grid">
+  <div class="summary-card">
+    <h3><span class="card-dot green"></span>架构亮点</h3>
+    <ul>
+      <li>基于 Hermes Agent 不重复造引擎</li>
+      <li>Skill 标准化封装，即插即用</li>
+      <li>DeepSeek V4 主力推理，三模型容灾</li>
+      <li>非结构化数据 AI 原生理解</li>
+      <li>cronjob + webhook 双触发引擎</li>
+    </ul>
+  </div>
+  <div class="summary-card">
+    <h3><span class="card-dot purple"></span>与 RPA 本质差异</h3>
+    <ul>
+      <li>交互：拖拽编程 → 自然语言</li>
+      <li>容错：选择器崩了就重录 → AI 自愈</li>
+      <li>数据：只处理结构化 → 原生理解非结构化</li>
+      <li>维护：改流程图 → 改一句话</li>
+      <li>学习：2-4 周培训 → 零学习成本</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">Nova · Hermes Agent Powered · 2026</div>
+
+</div>
+</body>
+</html>
