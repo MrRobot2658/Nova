@@ -243,6 +243,8 @@ export class HermesManager {
     const exts = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.html', '.htm']
     const kw = keyword.replace(/\.[a-z0-9]+$/i, '').toLowerCase().trim()
     if (!kw) return null
+    // 太泛的关键词（"pdf"/"文件" 等）会匹配到任意文件，直接放弃，交给上层提示用户给具体名字
+    if (['pdf', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'html', 'htm', 'file', '文件', '文档', '图片', '网页'].includes(kw)) return null
     const roots = [this.settings.workdir?.trim(), join(homedir(), 'Downloads'), join(homedir(), 'Desktop'), join(homedir(), 'Documents')].filter(Boolean) as string[]
     const skip = new Set(['node_modules', '.git', 'Library', '.Trash', '.cache', 'release', 'out'])
 
