@@ -16,7 +16,9 @@ The `nova` command is a thin wrapper that `install.sh` writes to `~/bin/nova`:
 ```bash
 cd "$HOME" && hermes chat --profile devops -- "$@"
 ```
-So "running Nova" means running Hermes with the `devops` profile. There is nothing to build, lint, or test in this repo.
+So "running Nova" means running Hermes with the `devops` profile. As of now there is nothing to build, lint, or test in this repo — it's still docs + static site + CLI wrapper.
+
+**Planned direction (not yet in the repo):** the target product form is an **Electron desktop app in TypeScript** (`code/desktop/`, React renderer, Manus-style UI) whose installer **bundles a forked/二开 Hermes server** (`code/hermes/`, vendored via submodule/subtree) as a sidecar — so users need no separate Hermes install. The desktop app is L1; bundled Hermes is L2–L6. This is fully specified in `docs/开发文档.md` §1 (架构总览). When `code/desktop/` or `code/hermes/` actually appear, update this section to match reality.
 
 ## Common commands
 
