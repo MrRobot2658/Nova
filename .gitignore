@@ -1,3 +1,9 @@
+# Secrets / local config — NEVER commit real keys (this repo is public)
+.env
+.env.*
+!.env.example
+*.local
+
 # Vercel
 .vercel
 

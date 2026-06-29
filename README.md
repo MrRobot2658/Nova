@@ -115,6 +115,7 @@ Nova/
 └── docs/
     ├── 概要设计.md             # 概要设计（HLD：模块划分/数据流/选型）
     ├── 详细设计.md             # 详细设计（LLD：各模块内部设计）
+    ├── 开发文档.md             # 开发指南（环境/配置/模型/Skill 开发）
     ├── architecture.md         # 技术架构（六层 / 28 Skill）
     ├── product-functions.md    # 产品功能与场景矩阵
     ├── rpa-migration.md        # 从传统 RPA 迁移指南
