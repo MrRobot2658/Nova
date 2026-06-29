@@ -10,6 +10,11 @@
 - [ ] **universal 包**：arm64 + x64（目前仅 arm64）。
 
 ## 功能增强
+- [x] **浏览器模拟 Chrome**：webview 用纯 Chrome UA（去掉 Electron/Nova 标识），避免小红书等站点按非标准浏览器拦截。
+- [ ] **爬虫 / 数据采集 skill 基于内置浏览器**：采集类能力统一走右侧 webview 而非 headless——
+  复用真实 Chrome UA + 持久化 partition（登录态/cookie）规避反爬；通过 `webview.executeJavaScript()`
+  提取 DOM、模拟滚动加载/翻页、截图取证；主进程暴露 webview 自动化桥给 Hermes/skill 调用。
+  （对应 browser-act / china-web-data-collection / wenshu-api-crawl 等 skill 的真实实现路径。）
 - [ ] **迷你浏览器**：`target=_blank` 弹窗在同一 webview 内打开；多标签页。
 - [ ] **真实语音 STT**：Web Speech API 在 Electron 不稳定，改为录音 + ASR endpoint（需指定服务）。
 - [ ] **会话项操作**：hover 重命名 / 删除（`hermes sessions rename` / `delete`）。

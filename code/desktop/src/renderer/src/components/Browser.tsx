@@ -9,6 +9,15 @@ type WebviewEl = HTMLElement & {
   getURL(): string
 }
 
+/** 纯 Chrome User-Agent：去掉 Electron / 应用名标识，避免被站点（如小红书）按非标准浏览器拦截 */
+function chromeUserAgent(): string {
+  const ua = navigator.userAgent.replace(/ (Electron|Nova)\/[\d.]+/gi, '').replace(/\s{2,}/g, ' ').trim()
+  if (/Chrome\/[\d.]+/.test(ua) && !/Electron/i.test(ua)) return ua
+  // 兜底：构造 macOS Chrome UA
+  const chrome = (navigator.userAgent.match(/Chrome\/[\d.]+/) || ['Chrome/126.0.0.0'])[0]
+  return `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) ${chrome} Safari/537.36`
+}
+
 /** 把地址栏输入归一化成可加载的 URL（支持本地文件路径与中文） */
 function normalize(input: string): string {
   const t = input.trim()
@@ -44,8 +53,8 @@ export default function Browser({ url }: { url: string }): JSX.Element {
     if (target) void wv()?.loadURL(target).catch(() => undefined)
   }
 
-  // plugins/allowpopups 必须在 <webview> 创建时就存在；用 any 展开绕过 JSX 属性类型限制
-  const guestAttrs = { src: url, partition: 'persist:nova', plugins: 'true', allowpopups: 'true' }
+  // plugins/allowpopups/useragent 必须在 <webview> 创建时就存在；用 any 展开绕过 JSX 属性类型限制
+  const guestAttrs = { src: url, partition: 'persist:nova', plugins: 'true', allowpopups: 'true', useragent: chromeUserAgent() }
 
   return (
     <div className="pane browser-pane">
