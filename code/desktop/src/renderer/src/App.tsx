@@ -29,9 +29,10 @@ const SITE_MAP: Record<string, string> = {
   google: 'https://www.google.com'
 }
 
-/** 识别「打开/预览 X」这类命令，返回目标（url / 绝对路径 / 关键词） */
+/** 识别「打开/预览 X」这类命令，返回目标（url / 绝对路径 / 关键词）。
+ *  中文动词后可无空格（“打开百度”），英文 open 需空格。 */
 function parseOpenCommand(text: string): { kind: 'url' | 'path' | 'keyword'; value: string } | null {
-  const m = text.trim().match(/^(?:(?:在)?(?:内置)?浏览器(?:里|中)?\s*)?(?:打开|预览|查看|访问|open)\s+(.+)$/i)
+  const m = text.trim().match(/^(?:(?:在)?(?:内置)?浏览器(?:里|中)?\s*)?(?:(?:打开|预览|查看|访问)\s*[:：]?\s*|open\s+)(.+)$/i)
   if (!m) return null
   const v = m[1].trim().replace(/^["'`「【]+|["'`」】]+$/g, '').trim()
   if (!v) return null
