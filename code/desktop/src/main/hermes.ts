@@ -1,4 +1,4 @@
-import { spawn, execSync, type ChildProcess } from 'child_process'
+import { spawn, execFileSync, execSync, type ChildProcess } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
@@ -34,9 +34,13 @@ export interface HermesInfo {
   bin: string | null
   model: string
   profile: string
+  /** 离线回退用的静态 Skill 目录 */
   skills: SkillGroup[]
-  mcp: Array<{ name: string; status: string }>
-  usage: Array<{ label: string; value: string }>
+  /** 已连接时由真实命令获取的文本输出 */
+  profilesText: string | null
+  skillsText: string | null
+  mcpText: string | null
+  insightsText: string | null
 }
 
 export type NovaEvent =
@@ -50,7 +54,7 @@ export type NovaEvent =
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
-/** Nova 预制 Skill 目录（28 个，4 组）—— 设置页展示用 */
+/** Nova 预制 Skill 目录（未连接时的静态展示） */
 const SKILLS: SkillGroup[] = [
   {
     group: '🏢 办公自动化',
@@ -65,14 +69,16 @@ const SKILLS: SkillGroup[] = [
 /**
  * 检测 → 连接 → 配置 → 执行 Hermes。
  *
- * 启动策略：先检测本机是否已存在 Hermes（手动路径 / PATH / ~/.hermes）。
- * 存在则复用、不安装内置版；不存在用随包内置版；开发期都没有时回退「模拟模式」。
+ * 真实 CLI（实测）：
+ *  - 单次非交互执行：`hermes chat -q "<prompt>" -Q [--yolo] [-m <model>]`
+ *  - profile 通过 `hermes profile use <name>` 设为粘性默认（无 --profile 标志）
+ *  - 信息查询：`hermes profile list` / `skills list` / `mcp list` / `insights`
+ *  - 版本：`hermes --version`
  */
 export class HermesManager {
   private proc: ChildProcess | null = null
   private emit: (evt: NovaEvent) => void = () => {}
   private runSeq = 0
-  private runs = 0 // 本次会话执行计数（本地用量指标）
   private settings: NovaSettings = loadSettings()
   private _status: HermesStatus = { mode: 'simulated', detected: false, bin: null, ready: false }
 
@@ -85,9 +91,17 @@ export class HermesManager {
     return this.settings
   }
 
-  setSettings(patch: Partial<NovaSettings>): NovaSettings {
+  async setSettings(patch: Partial<NovaSettings>): Promise<NovaSettings> {
     this.settings = saveSettings(patch)
     this.refresh()
+    // 设置了 profile 且已连接 → 设为 Hermes 粘性默认
+    if (typeof patch.profile === 'string' && patch.profile.trim() && this._status.bin && this._status.mode !== 'simulated') {
+      try {
+        execFileSync(this._status.bin, ['profile', 'use', patch.profile.trim()], { stdio: 'ignore', timeout: 8000 })
+      } catch {
+        // 忽略（profile 可能不存在）
+      }
+    }
     return this.settings
   }
 
@@ -95,7 +109,6 @@ export class HermesManager {
     return this._status
   }
 
-  /** 依据当前设置重新解析 Hermes 位置与运行模式 */
   refresh(): HermesStatus {
     const bin = this.resolveBin()
     if (bin) {
@@ -108,7 +121,6 @@ export class HermesManager {
     return this._status
   }
 
-  /** 解析 Hermes 可执行文件：手动路径 → PATH → ~/.hermes → 内置 */
   private resolveBin(): string | null {
     const manual = this.settings.hermesPath?.trim()
     if (manual && existsSync(manual)) return manual
@@ -132,8 +144,7 @@ export class HermesManager {
     try {
       const lookup = process.platform === 'win32' ? `where ${cmd}` : `command -v ${cmd}`
       const out = execSync(lookup, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
-      const first = out.split('\n')[0]?.trim()
-      return first || null
+      return out.split('\n')[0]?.trim() || null
     } catch {
       return null
     }
@@ -143,22 +154,32 @@ export class HermesManager {
     return process.resourcesPath ? join(process.resourcesPath, 'hermes', 'bin', 'hermes') : null
   }
 
-  /** 测试连接：校验可执行并尝试读取版本 */
+  /** 运行一个只读子命令并返回文本（失败返回 null） */
+  private query(args: string[], timeoutMs = 10000): string | null {
+    const bin = this._status.bin
+    if (!bin) return null
+    try {
+      return execFileSync(bin, args, { stdio: ['ignore', 'pipe', 'pipe'], timeout: timeoutMs, env: { ...process.env, NO_COLOR: '1' } }).toString().trim()
+    } catch (e) {
+      const err = e as { stdout?: Buffer; stderr?: Buffer }
+      const out = `${err.stdout?.toString() ?? ''}${err.stderr?.toString() ?? ''}`.trim()
+      return out || null
+    }
+  }
+
   async test(): Promise<TestResult> {
     const st = this.refresh()
     if (st.mode === 'simulated' || !st.bin) {
-      return { ok: false, bin: null, mode: 'simulated', message: '未检测到 Hermes。可在上方手动指定可执行文件路径，或先以模拟模式开发。' }
+      return { ok: false, bin: null, mode: 'simulated', message: '未检测到 Hermes。可在上方手动指定路径，或先以模拟模式开发。' }
     }
     try {
-      const version = execSync(`"${st.bin}" --version`, { stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }).toString().trim()
+      const version = execFileSync(st.bin, ['--version'], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }).toString().trim()
       return { ok: true, bin: st.bin, version, mode: st.mode, message: `连接成功（${st.mode}）` }
     } catch {
-      // 找到了可执行文件，但 --version 不可用，仍视为已连接
       return { ok: true, bin: st.bin, mode: st.mode, message: `已找到 Hermes：${st.bin}（无法读取版本号）` }
     }
   }
 
-  /** 基本属性：模型 / Profile / Skill / MCP / Token 使用量 */
   async info(): Promise<HermesInfo> {
     const st = this.refresh()
     const connected = st.mode !== 'simulated' && !!st.bin
@@ -169,33 +190,15 @@ export class HermesManager {
       model: this.settings.model,
       profile: this.settings.profile,
       skills: SKILLS,
-      mcp: connected && st.bin ? this.queryMcp(st.bin) : [],
-      usage: this.queryUsage(connected, st.bin)
+      profilesText: connected ? this.query(['profile', 'list']) : null,
+      skillsText: connected ? this.query(['skills', 'list']) : null,
+      mcpText: connected ? this.query(['mcp', 'list']) : null,
+      insightsText: connected ? this.query(['insights', '--days', '30']) : null
     }
   }
 
-  /** 查询 MCP 列表。TODO: 替换为 Hermes 真实命令（命令名待定，未知时返回空）。 */
-  private queryMcp(bin: string): Array<{ name: string; status: string }> {
-    try {
-      const out = execSync(`"${bin}" mcp list`, { stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }).toString().trim()
-      return out ? out.split('\n').filter(Boolean).map((l) => ({ name: l.trim(), status: 'configured' })) : []
-    } catch {
-      return []
-    }
-  }
-
-  /** Token 使用量。本地会话计数 + 预留 Hermes 真实用量接入点。 */
-  private queryUsage(connected: boolean, bin: string | null): Array<{ label: string; value: string }> {
-    const local = [{ label: '本次会话执行次数', value: String(this.runs) }]
-    if (!connected || !bin) return local
-    // TODO: 接 Hermes 真实用量命令（如 `hermes usage --json`），解析 tokens 后并入。
-    return local
-  }
-
-  /** 执行一条自然语言指令；返回 runId，过程通过事件流推送。 */
   async run(text: string): Promise<{ runId: string }> {
     const runId = `r${++this.runSeq}`
-    this.runs++
     const st = this._status
     if (st.mode === 'simulated' || !st.bin) {
       void this.simulate(runId, text)
@@ -210,18 +213,20 @@ export class HermesManager {
     this.proc = null
   }
 
-  // ── 真实 Hermes：spawn `hermes chat --profile <p> -- <text>`，流式转发 stdout/stderr ──
+  // ── 真实 Hermes：`hermes chat -q "<text>" -Q [--yolo] [-m model]` ──
 
   private runReal(runId: string, text: string, bin: string): void {
     const stepId = `${runId}-h`
-    this.emit({ type: 'step-start', runId, id: stepId, skill: 'hermes', desc: `profile=${this.settings.profile}` })
+    const model = this.settings.model.trim()
+    this.emit({ type: 'step-start', runId, id: stepId, skill: 'hermes', desc: `chat -q · ${model || 'Hermes 默认模型'}` })
+
+    const args = ['chat', '-q', text, '-Q']
+    if (this.settings.yolo) args.push('--yolo')
+    if (model) args.push('-m', model)
 
     let child: ChildProcess
     try {
-      child = spawn(bin, ['chat', '--profile', this.settings.profile, '--', text], {
-        cwd: homedir(),
-        env: { ...process.env, ...this.devEnv() }
-      })
+      child = spawn(bin, args, { cwd: homedir(), env: { ...process.env, ...this.devEnv(), NO_COLOR: '1' } })
     } catch (e) {
       this.emit({ type: 'step-done', runId, id: stepId, ok: false })
       this.emit({ type: 'error', runId, message: `启动 Hermes 失败：${(e as Error).message}` })
@@ -241,7 +246,7 @@ export class HermesManager {
     })
   }
 
-  /** 开发期把仓库根 .env 注入子进程，便于 Hermes 读取 DEEPSEEK_* 等（打包后无此文件，返回空）。 */
+  /** 开发期把仓库根 .env 注入子进程，便于 Hermes 读取 DEEPSEEK_* 等（打包后无此文件）。 */
   private devEnv(): Record<string, string> {
     const candidates = [join(process.cwd(), '.env'), join(process.cwd(), '..', '..', '.env')]
     for (const f of candidates) {
@@ -262,7 +267,7 @@ export class HermesManager {
     return {}
   }
 
-  // ── 开发期模拟：把一句话拆成若干 Skill 步骤，逐步推送事件 ──
+  // ── 开发期模拟（未连接 Hermes 时） ──
 
   private skillsFor(text: string): Array<{ skill: string; desc: string }> {
     const steps: Array<{ skill: string; desc: string }> = []

@@ -40,14 +40,17 @@ export interface HermesInfo {
   model: string
   profile: string
   skills: SkillGroup[]
-  mcp: Array<{ name: string; status: string }>
-  usage: Array<{ label: string; value: string }>
+  profilesText: string | null
+  skillsText: string | null
+  mcpText: string | null
+  insightsText: string | null
 }
 
 export interface NovaSettings {
   hermesPath: string
   profile: string
   model: string
+  yolo: boolean
 }
 
 export type NovaEvent =

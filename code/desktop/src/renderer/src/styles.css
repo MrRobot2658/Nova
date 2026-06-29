@@ -190,6 +190,16 @@ body {
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: #4b5160; background: var(--bg); border: 1px solid var(--line); padding: 3px 8px; border-radius: 6px; }
 .bubble.agent.error { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.check { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-2, #334155); margin-bottom: 14px; cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--indigo); }
+.check code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--bg); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+.sub-label { font-size: 12px; color: var(--muted); font-weight: 600; margin: 14px 0 6px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.term {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.55;
+  background: #0b1120; color: #cbd5e1; border-radius: 10px; padding: 14px 16px;
+  overflow-x: auto; white-space: pre; max-height: 360px; overflow-y: auto;
+}
 @media (max-width: 1180px) { .skill-groups { grid-template-columns: 1fr; } }
 
 /* 滚动条 */

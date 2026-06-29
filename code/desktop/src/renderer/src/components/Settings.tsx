@@ -5,16 +5,22 @@ interface Props {
   onChanged: () => void
 }
 
+const EMPTY_SETTINGS: NovaSettings = { hermesPath: '', profile: '', model: '', yolo: true }
+
 export default function Settings({ onChanged }: Props): JSX.Element {
-  const [settings, setSettings] = useState<NovaSettings>({ hermesPath: '', profile: 'devops', model: 'deepseek-v4-pro' })
+  const [settings, setSettings] = useState<NovaSettings>(EMPTY_SETTINGS)
   const [test, setTest] = useState<TestResult | null>(null)
   const [info, setInfo] = useState<HermesInfo | null>(null)
   const [testing, setTesting] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  const loadInfo = (): void => {
+    void window.nova.info().then((i) => setInfo(i as HermesInfo))
+  }
+
   useEffect(() => {
     void window.nova.getSettings().then((s) => setSettings(s as NovaSettings))
-    void window.nova.info().then((i) => setInfo(i as HermesInfo))
+    loadInfo()
   }, [])
 
   const update = (patch: Partial<NovaSettings>): void => {
@@ -27,18 +33,15 @@ export default function Settings({ onChanged }: Props): JSX.Element {
     setSettings(s)
     setSaved(true)
     onChanged()
-    void window.nova.info().then((i) => setInfo(i as HermesInfo))
+    loadInfo()
   }
 
   const runTest = async (): Promise<void> => {
     setTesting(true)
-    // 测试前先保存路径等设置，确保用当前输入解析
     await window.nova.setSettings(settings as unknown as Record<string, unknown>)
-    const r = (await window.nova.test()) as TestResult
-    setTest(r)
+    setTest((await window.nova.test()) as TestResult)
     onChanged()
-    const i = (await window.nova.info()) as HermesInfo
-    setInfo(i)
+    setInfo((await window.nova.info()) as HermesInfo)
     setTesting(false)
   }
 
@@ -70,11 +73,12 @@ export default function Settings({ onChanged }: Props): JSX.Element {
                 {test.version ? ` · ${test.version}` : ''}
               </span>
             )}
+            {info?.bin && <span className="muted mono">{info.bin}</span>}
           </div>
         </section>
 
-        {/* ── 基本属性（连接成功后可配置/查看） ── */}
-        <section className={`card ${connected ? '' : 'disabled'}`}>
+        {/* ── 基本属性 ── */}
+        <section className="card">
           <div className="card-head">
             <h3>基本属性</h3>
             <span className={`pill ${connected ? 'ok' : 'warn'}`}>{connected ? `已连接 · ${info?.mode}` : '未连接（模拟模式）'}</span>
@@ -82,80 +86,79 @@ export default function Settings({ onChanged }: Props): JSX.Element {
 
           <div className="grid2">
             <label className="field">
-              <span>Profile</span>
-              <input type="text" value={settings.profile} onChange={(e) => update({ profile: e.target.value })} />
+              <span>Profile（留空用当前默认）</span>
+              <input type="text" placeholder="如 devops / product" value={settings.profile} onChange={(e) => update({ profile: e.target.value })} />
             </label>
             <label className="field">
-              <span>模型</span>
+              <span>模型覆盖 -m（留空用 Hermes 默认）</span>
               <select value={settings.model} onChange={(e) => update({ model: e.target.value })}>
+                <option value="">（用 Hermes 默认模型）</option>
                 <option value="deepseek-v4-pro">deepseek-v4-pro（强推理）</option>
                 <option value="deepseek-v4-flash">deepseek-v4-flash（快/省）</option>
               </select>
             </label>
           </div>
 
+          <label className="check">
+            <input type="checkbox" checked={settings.yolo} onChange={(e) => update({ yolo: e.target.checked })} />
+            <span>自动批准工具调用（<code>--yolo</code>）—— 非交互执行避免卡在审批</span>
+          </label>
+
           <div className="row">
             <button className="btn primary" onClick={save}>保存</button>
             {saved && <span className="pill ok">✓ 已保存</span>}
           </div>
+
+          {info?.profilesText && (
+            <>
+              <div className="sub-label">可用 Profile（hermes profile list）</div>
+              <pre className="term">{info.profilesText}</pre>
+            </>
+          )}
         </section>
 
         {/* ── Skill ── */}
         <section className="card">
-          <div className="card-head">
-            <h3>Skill</h3>
-            <span className="pill">{info?.skills.reduce((n, g) => n + g.count, 0) ?? 28} 个</span>
-          </div>
-          <div className="skill-groups">
-            {info?.skills.map((g) => (
-              <div key={g.group} className="skill-group">
-                <div className="sg-head">
-                  <span>{g.group}</span>
-                  <span className="pill">{g.count}</span>
+          <h3>Skill</h3>
+          {connected && info?.skillsText ? (
+            <pre className="term">{info.skillsText}</pre>
+          ) : (
+            <div className="skill-groups">
+              {info?.skills.map((g) => (
+                <div key={g.group} className="skill-group">
+                  <div className="sg-head">
+                    <span>{g.group}</span>
+                    <span className="pill">{g.count}</span>
+                  </div>
+                  <div className="chips">
+                    {g.items.map((it) => (
+                      <span key={it} className="chip">{it}</span>
+                    ))}
+                  </div>
                 </div>
-                <div className="chips">
-                  {g.items.map((it) => (
-                    <span key={it} className="chip">{it}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ── MCP ── */}
         <section className="card">
           <h3>MCP Server</h3>
           {connected ? (
-            info && info.mcp.length > 0 ? (
-              <ul className="kv-list">
-                {info.mcp.map((m) => (
-                  <li key={m.name}>
-                    <span>{m.name}</span>
-                    <span className="pill ok">{m.status}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="muted">未检测到已配置的 MCP Server。</p>
-            )
+            <pre className="term">{info?.mcpText || '（无输出）'}</pre>
           ) : (
-            <p className="muted">连接 Hermes 后显示已配置的 MCP Server。</p>
+            <p className="muted">连接 Hermes 后显示已配置的 MCP Server（hermes mcp list）。</p>
           )}
         </section>
 
         {/* ── Token 使用量 ── */}
         <section className="card">
-          <h3>Token 使用量</h3>
-          <ul className="kv-list">
-            {info?.usage.map((u) => (
-              <li key={u.label}>
-                <span>{u.label}</span>
-                <span className="pill">{u.value}</span>
-              </li>
-            ))}
-          </ul>
-          {!connected && <p className="muted">连接 Hermes 后显示真实 token 用量。</p>}
+          <h3>Token 使用量 · Insights（近 30 天）</h3>
+          {connected ? (
+            <pre className="term">{info?.insightsText || '（无输出）'}</pre>
+          ) : (
+            <p className="muted">连接 Hermes 后显示真实 token 用量（hermes insights）。</p>
+          )}
         </section>
       </div>
     </main>

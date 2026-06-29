@@ -6,16 +6,19 @@ import { dirname, join } from 'path'
 export interface NovaSettings {
   /** 手动指定的 Hermes 可执行路径；留空则自动检测（PATH / ~/.hermes / 内置） */
   hermesPath: string
-  /** Hermes profile，默认 devops */
+  /** Hermes profile；留空则用 Hermes 当前粘性默认 */
   profile: string
-  /** 主力模型 id */
+  /** 模型覆盖（-m）；留空则用 Hermes 默认模型 */
   model: string
+  /** 自动批准工具调用（--yolo），非交互执行避免卡在审批 */
+  yolo: boolean
 }
 
 const DEFAULTS: NovaSettings = {
   hermesPath: '',
-  profile: 'devops',
-  model: 'deepseek-v4-pro'
+  profile: '',
+  model: '',
+  yolo: true
 }
 
 function settingsFile(): string {
