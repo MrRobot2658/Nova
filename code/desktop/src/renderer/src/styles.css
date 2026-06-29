@@ -360,7 +360,13 @@ body {
 .tab-ico { margin-right: 5px; font-size: 13px; }
 
 /* ── 右侧列：执行 / 浏览器 ── */
-.right-col { display: flex; flex-direction: column; background: var(--panel); border-left: 1px solid var(--line); }
+.right-col { position: relative; display: flex; flex-direction: column; background: var(--panel); border-left: 1px solid var(--line); }
+
+/* 中间/右侧 拖拽分隔条 */
+.splitter { position: absolute; left: 0; top: 0; bottom: 0; width: 8px; cursor: col-resize; z-index: 30; }
+.splitter::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: transparent; transition: background .15s ease; }
+.splitter:hover::after { background: rgba(99,102,241,.45); }
+.drag-overlay { position: fixed; inset: 0; z-index: 9999; cursor: col-resize; user-select: none; }
 .right-tabs { flex: none; height: 52px; display: flex; align-items: center; gap: 4px; padding: 0 12px; border-bottom: 1px solid var(--line); }
 .rtab {
   -webkit-app-region: no-drag; cursor: pointer; border: none; background: none; font-size: 13px; font-weight: 600;

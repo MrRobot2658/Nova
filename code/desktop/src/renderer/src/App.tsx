@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
 import Sidebar from './components/Sidebar'
 import Conversation from './components/Conversation'
 import ExecutionPanel from './components/ExecutionPanel'
@@ -43,6 +43,8 @@ export default function App(): JSX.Element {
   const [currentSession, setCurrentSession] = useState<string | null>(null)
   const [rightTab, setRightTab] = useState<RightTab>('exec')
   const [browserUrl, setBrowserUrl] = useState('')
+  const [rightWidth, setRightWidth] = useState(420)
+  const [dragging, setDragging] = useState(false)
   const sessionRef = useRef<string | null>(null)
   const runBufferRef = useRef('')
   const autoOpenedRef = useRef(false)
@@ -54,6 +56,23 @@ export default function App(): JSX.Element {
   const openUrl = (u: string): void => {
     setBrowserUrl(u)
     setRightTab('browser')
+  }
+
+  // 拖拽分隔条调整中间/右侧宽度
+  const startDrag = (e: ReactMouseEvent): void => {
+    e.preventDefault()
+    setDragging(true)
+    const onMove = (ev: MouseEvent): void => {
+      const w = Math.min(820, Math.max(300, window.innerWidth - ev.clientX))
+      setRightWidth(w)
+    }
+    const onUp = (): void => {
+      setDragging(false)
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
   }
 
   const pickFolder = async (): Promise<void> => {
@@ -175,7 +194,7 @@ export default function App(): JSX.Element {
   }
 
   return (
-    <div className="app">
+    <div className="app" style={{ gridTemplateColumns: `260px minmax(0, 1fr) ${rightWidth}px` }}>
       <Sidebar
         status={status}
         view={view}
@@ -189,6 +208,7 @@ export default function App(): JSX.Element {
         <>
           <Conversation messages={messages} running={running} workdir={workdir} onSend={send} onPickFolder={pickFolder} />
           <div className="right-col">
+            <div className="splitter" onMouseDown={startDrag} title="拖拽调整宽度" />
             <div className="right-tabs drag">
               <button className={`rtab ${rightTab === 'exec' ? 'active' : ''}`} onClick={() => setRightTab('exec')}>
                 ⚡ 执行{running && <span className="rdot" />}
@@ -215,6 +235,7 @@ export default function App(): JSX.Element {
           }}
         />
       )}
+      {dragging && <div className="drag-overlay" />}
     </div>
   )
 }
