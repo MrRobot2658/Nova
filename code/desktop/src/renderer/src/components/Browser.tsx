@@ -21,39 +21,31 @@ function normalize(input: string): string {
 
 export default function Browser({ url }: { url: string }): JSX.Element {
   const ref = useRef<WebviewEl | null>(null)
-  const firstNav = useRef(true)
   const [addr, setAddr] = useState(url)
   const [loading, setLoading] = useState(false)
 
-  // ref 回调：在加载前先开启 plugins（PDF 等内置查看器），再设置 src
+  // 仅挂事件监听；plugins/src 通过属性在元素创建时设置（早于 guest 创建，PDF 才能渲染）
   const attach = (el: HTMLElement | null): void => {
     if (!el || ref.current === el) return
     const wv = el as WebviewEl
     ref.current = wv
-    el.setAttribute('plugins', 'true')
-    el.setAttribute('allowpopups', 'true')
     el.addEventListener('did-start-loading', () => setLoading(true))
     el.addEventListener('did-stop-loading', () => {
       setLoading(false)
       setAddr(wv.getURL())
     })
-    el.setAttribute('src', url) // plugins 设好后再触发首次加载
   }
 
-  useEffect(() => {
-    setAddr(url)
-    if (firstNav.current) {
-      firstNav.current = false // 首次加载由 attach 的 src 完成
-      return
-    }
-    if (ref.current && url) void ref.current.loadURL(url).catch(() => undefined)
-  }, [url])
+  useEffect(() => setAddr(url), [url])
 
   const wv = (): WebviewEl | null => ref.current
   const go = (raw: string): void => {
     const target = normalize(raw)
     if (target) void wv()?.loadURL(target).catch(() => undefined)
   }
+
+  // plugins/allowpopups 必须在 <webview> 创建时就存在；用 any 展开绕过 JSX 属性类型限制
+  const guestAttrs = { src: url, partition: 'persist:nova', plugins: 'true', allowpopups: 'true' }
 
   return (
     <div className="pane browser-pane">
@@ -74,7 +66,7 @@ export default function Browser({ url }: { url: string }): JSX.Element {
         />
       </div>
       {loading && <div className="browser-progress" />}
-      <webview ref={attach} className="webview" partition="persist:nova" />
+      <webview ref={attach} className="webview" {...(guestAttrs as any)} />
     </div>
   )
 }

@@ -20,7 +20,8 @@ function createWindow(): void {
       sandbox: false,
       contextIsolation: true,
       nodeIntegration: false,
-      webviewTag: true // 右侧内置迷你浏览器（<webview>）
+      webviewTag: true, // 右侧内置迷你浏览器（<webview>）
+      plugins: true // 启用 Chromium PDF 查看器
     }
   })
 
