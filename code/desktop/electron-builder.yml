@@ -1,0 +1,18 @@
+# Nova 桌面端打包配置（构建阶段启用，当前先占位）
+# 注意：内置 Hermes 的 extraResources 待 code/hermes/ 落地后再补全。
+appId: com.nova.desktop
+productName: Nova
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+# extraResources:
+#   - from: ../hermes/dist      # 内置 Hermes 运行时（构建阶段产出）
+#     to: hermes
+mac:
+  target: dmg
+  category: public.app-category.productivity
+win:
+  target: nsis
