@@ -1,6 +1,6 @@
 # Nova — Hermes RPA 替代品
 
-> 把 AI Agent 包装成办公自动化套件。自然语言驱动，替代 UiPath / 影刀 / 八爪鱼。
+> 把 AI Agent 包装成办公自动化套件。自然语言驱动，替代 UiPath / 影刀。
 
 ## 一句话
 
@@ -113,6 +113,8 @@ Nova/
 │   ├── demo.html               # 在线交互 Demo
 │   └── assets/                 # 样式与脚本
 └── docs/
+    ├── 概要设计.md             # 概要设计（HLD：模块划分/数据流/选型）
+    ├── 详细设计.md             # 详细设计（LLD：各模块内部设计）
     ├── architecture.md         # 技术架构（六层 / 28 Skill）
     ├── product-functions.md    # 产品功能与场景矩阵
     ├── rpa-migration.md        # 从传统 RPA 迁移指南

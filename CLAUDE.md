@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Nova is **not an application codebase** — it's the packaging + documentation layer that repositions the [Hermes Agent](https://hermes-agent.nousresearch.com) as an RPA replacement (positioned against UiPath / 影刀 / 八爪鱼) for Chinese business users. Nova itself ships no agent runtime, no models, and no Skill implementations. It is:
+Nova is **not an application codebase** — it's the packaging + documentation layer that repositions the [Hermes Agent](https://hermes-agent.nousresearch.com) as an RPA replacement (positioned against UiPath / 影刀) for Chinese business users. Nova itself ships no agent runtime, no models, and no Skill implementations. It is:
 
 1. **Nova source — `code/`** — installers: `code/install.sh` (macOS, also packages a `.dmg`) and `code/scripts/install-windows.ps1` (Windows via WSL2). They install system deps, drop a `nova` shell wrapper, and verify a Hermes install at `~/.hermes`. `code/config/` and `code/skills/` are empty placeholders (kept via `.gitkeep`).
 2. **Website — `site/`** — the static marketing/官网 site (landing + 购买 + interactive demo), deployed to **Vercel**. Pure HTML/CSS/JS, no build step. See "The website" below.
