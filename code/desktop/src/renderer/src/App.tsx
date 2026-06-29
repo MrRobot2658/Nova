@@ -49,6 +49,22 @@ function parseOpenCommand(text: string): { kind: 'url' | 'path' | 'keyword'; val
   return { kind: 'keyword', value: v }
 }
 
+/** 整条消息就是网址 / 域名 / 站点名 → 直接打开（站点名则搜索后打开） */
+function detectSiteIntent(text: string): { kind: 'url' | 'name'; value: string } | null {
+  const t = text
+    .trim()
+    .replace(/^[\s"'`「【（(]+/, '')
+    .replace(/[\s"'`」】）).,，。、;；]+$/, '')
+    .trim()
+  if (!t) return null
+  if (/^(https?|file):\/\//i.test(t)) return { kind: 'url', value: t }
+  const site = SITE_MAP[t.toLowerCase()] ?? SITE_MAP[t]
+  if (site) return { kind: 'url', value: site }
+  if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t)) return { kind: 'url', value: `https://${t}` } // 裸域名
+  if (/^[\w一-龥-]{2,20}(网|官网|网站|平台)$/.test(t)) return { kind: 'name', value: t } // 站点名 → 搜索打开
+  return null
+}
+
 /** 从文本里识别可在右侧打开的网址 / 本地可预览文件（支持中文路径） */
 function detectUrl(text: string): string | null {
   const web = text.match(/(https?:\/\/[^\s<>"')\]]+)/i)
@@ -210,7 +226,19 @@ export default function App(): JSX.Element {
       }
     }
 
-    // 2) 文本里含 url/路径 → 顺带在右侧打开
+    // 2) 整条消息就是网址/站点名 → 直接打开（不跑 Agent）
+    const site = detectSiteIntent(text)
+    if (site) {
+      if (site.kind === 'url') {
+        openUrl(site.value)
+      } else {
+        setRightTab('browser')
+        void execBrowser({ id: 0, action: 'searchOpen', q: site.value })
+      }
+      return
+    }
+
+    // 3) 文本里含 url/路径 → 顺带在右侧打开
     const url = detectUrl(text)
     if (url) openUrl(url)
     if (url && text.trim() === url) return

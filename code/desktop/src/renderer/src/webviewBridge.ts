@@ -71,6 +71,7 @@ export interface BrowserCommand {
   action: string
   url?: string
   js?: string
+  q?: string
   [k: string]: unknown
 }
 
@@ -85,6 +86,23 @@ export async function execBrowser(cmd: BrowserCommand): Promise<unknown> {
         navHook?.(url)
         await el.loadURL(url)
         await waitStop(el)
+        return { ok: true, url: el.getURL(), title: el.getTitle() }
+      }
+      case 'searchOpen': {
+        // 搜索网站名 → 打开首条结果（搜不到则停在搜索结果页）
+        const q = String(cmd.q ?? '')
+        if (!q) return { ok: false, error: 'missing q' }
+        navHook?.(q)
+        await el.loadURL(`https://www.baidu.com/s?wd=${encodeURIComponent(q)}`)
+        await waitStop(el)
+        const href = (await el.executeJavaScript(
+          "(function(){var a=document.querySelector('#content_left .result h3 a, #content_left .c-container h3 a, #content_left h3 a'); return a ? a.href : '';})()",
+          true
+        )) as string
+        if (href) {
+          await el.loadURL(href)
+          await waitStop(el)
+        }
         return { ok: true, url: el.getURL(), title: el.getTitle() }
       }
       case 'info':
