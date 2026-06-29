@@ -1,5 +1,4 @@
-# Nova 桌面端打包配置（构建阶段启用，当前先占位）
-# 注意：内置 Hermes 的 extraResources 待 code/hermes/ 落地后再补全。
+# Nova 桌面端打包配置（electron-builder）
 appId: com.nova.desktop
 productName: Nova
 directories:
@@ -8,11 +7,26 @@ directories:
 files:
   - out/**/*
   - package.json
+asar: true
+npmRebuild: false
+
+# 内置 Hermes（待 code/hermes/ 落地后启用）—— 见 TODO.md
+# 当前策略：安装后优先检测并复用本机 Hermes（src/main/hermes.ts）
 # extraResources:
-#   - from: ../hermes/dist      # 内置 Hermes 运行时（构建阶段产出）
+#   - from: ../hermes/dist
 #     to: hermes
+
 mac:
-  target: dmg
+  target:
+    - target: dmg
+      arch: arm64
   category: public.app-category.productivity
+  identity: null # 本地未签名构建（分发前再补签名/公证）
+
+dmg:
+  title: Nova ${version}
+
 win:
-  target: nsis
+  target:
+    - target: nsis
+      arch: x64
