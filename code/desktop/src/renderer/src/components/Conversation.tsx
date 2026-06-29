@@ -33,7 +33,7 @@ export default function Conversation({ messages, running, onSend }: Props): JSX.
           </div>
         )}
         {messages.map((m, i) => (
-          <div key={i} className={`bubble ${m.role}`}>
+          <div key={i} className={`bubble ${m.role}${m.error ? ' error' : ''}`}>
             {m.text}
           </div>
         ))}

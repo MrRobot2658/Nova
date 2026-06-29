@@ -1,4 +1,4 @@
-import type { HermesStatus } from '../types'
+import type { HermesStatus, View } from '../types'
 
 const MODE_LABEL: Record<HermesStatus['mode'], string> = {
   system: '本机 Hermes（已复用）',
@@ -12,7 +12,13 @@ const RECENT = [
   '读未读邮件，把合同 PDF 关键条款汇总成表格'
 ]
 
-export default function Sidebar({ status }: { status: HermesStatus | null }): JSX.Element {
+interface Props {
+  status: HermesStatus | null
+  view: View
+  onNavigate: (v: View) => void
+}
+
+export default function Sidebar({ status, view, onNavigate }: Props): JSX.Element {
   const label = status ? MODE_LABEL[status.mode] : '连接中…'
   return (
     <aside className="sidebar">
@@ -20,20 +26,31 @@ export default function Sidebar({ status }: { status: HermesStatus | null }): JS
         <div className="brand">
           <span className="logo">N</span> Nova
         </div>
-        <button className="new-task">＋ 新建任务</button>
+        <button className={`nav-btn ${view === 'chat' ? 'active' : ''}`} onClick={() => onNavigate('chat')}>
+          💬 对话
+        </button>
+        <button className={`nav-btn ${view === 'settings' ? 'active' : ''}`} onClick={() => onNavigate('settings')}>
+          ⚙️ 设置
+        </button>
+
         <div className="side-label">最近</div>
         <ul className="task-list">
           {RECENT.map((t, i) => (
-            <li key={i} className="task-item" title={t}>
+            <li key={i} className="task-item" title={t} onClick={() => onNavigate('chat')}>
               {t}
             </li>
           ))}
         </ul>
       </div>
-      <div className="side-foot">
-        <span className={`status-dot ${status?.ready ? 'ok' : ''}`} />
+
+      <button
+        className="side-foot"
+        onClick={() => onNavigate('settings')}
+        title="打开设置"
+      >
+        <span className={`status-dot ${status?.ready && status.mode !== 'simulated' ? 'ok' : status?.ready ? 'warn' : ''}`} />
         <span className="status-text">{label}</span>
-      </div>
+      </button>
     </aside>
   )
 }

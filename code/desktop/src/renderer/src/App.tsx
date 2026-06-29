@@ -2,16 +2,22 @@ import { useEffect, useState } from 'react'
 import Sidebar from './components/Sidebar'
 import Conversation from './components/Conversation'
 import ExecutionPanel from './components/ExecutionPanel'
-import type { HermesStatus, Msg, NovaEvent, Step } from './types'
+import Settings from './components/Settings'
+import type { HermesStatus, Msg, NovaEvent, Step, View } from './types'
 
 export default function App(): JSX.Element {
+  const [view, setView] = useState<View>('chat')
   const [messages, setMessages] = useState<Msg[]>([])
   const [steps, setSteps] = useState<Step[]>([])
   const [running, setRunning] = useState(false)
   const [status, setStatus] = useState<HermesStatus | null>(null)
 
-  useEffect(() => {
+  const refreshStatus = (): void => {
     void window.nova.status().then((s) => setStatus(s as HermesStatus))
+  }
+
+  useEffect(() => {
+    refreshStatus()
 
     const off = window.nova.onEvent((raw) => {
       const evt = raw as NovaEvent
@@ -25,8 +31,23 @@ export default function App(): JSX.Element {
         case 'step-done':
           setSteps((s) => s.map((x) => (x.id === evt.id ? { ...x, status: evt.ok ? 'done' : 'fail' } : x)))
           break
+        case 'output':
+          // 流式输出：按 runId 追加到同一条 agent 气泡
+          setMessages((m) => {
+            const i = m.findIndex((x) => x.id === evt.runId)
+            if (i >= 0) {
+              const cp = [...m]
+              cp[i] = { ...cp[i], text: cp[i].text + evt.chunk }
+              return cp
+            }
+            return [...m, { role: 'agent', text: evt.chunk, id: evt.runId }]
+          })
+          break
         case 'result':
           setMessages((m) => [...m, { role: 'agent', text: evt.text }])
+          break
+        case 'error':
+          setMessages((m) => [...m, { role: 'agent', text: `⚠️ ${evt.message}`, error: true }])
           break
         case 'done':
           setRunning(false)
@@ -46,9 +67,15 @@ export default function App(): JSX.Element {
 
   return (
     <div className="app">
-      <Sidebar status={status} />
-      <Conversation messages={messages} running={running} onSend={send} />
-      <ExecutionPanel steps={steps} running={running} />
+      <Sidebar status={status} view={view} onNavigate={setView} />
+      {view === 'chat' ? (
+        <>
+          <Conversation messages={messages} running={running} onSend={send} />
+          <ExecutionPanel steps={steps} running={running} />
+        </>
+      ) : (
+        <Settings onChanged={refreshStatus} />
+      )}
     </div>
   )
 }

@@ -43,6 +43,10 @@ app.whenReady().then(async () => {
   await hermes.init((evt) => mainWindow?.webContents.send('hermes:event', evt))
 
   ipcMain.handle('hermes:status', () => hermes.status())
+  ipcMain.handle('hermes:test', () => hermes.test())
+  ipcMain.handle('hermes:info', () => hermes.info())
+  ipcMain.handle('settings:get', () => hermes.getSettings())
+  ipcMain.handle('settings:set', (_event, patch) => hermes.setSettings(patch))
   ipcMain.handle('nova:run', (_event, text: string) => hermes.run(text))
 
   createWindow()
