@@ -19,7 +19,8 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      webviewTag: true // 右侧内置迷你浏览器（<webview>）
     }
   })
 

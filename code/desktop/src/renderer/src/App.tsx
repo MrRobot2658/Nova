@@ -2,8 +2,20 @@ import { useEffect, useRef, useState } from 'react'
 import Sidebar from './components/Sidebar'
 import Conversation from './components/Conversation'
 import ExecutionPanel from './components/ExecutionPanel'
+import Browser from './components/Browser'
 import Settings from './components/Settings'
 import type { HermesStatus, Msg, NovaEvent, SessionItem, Step, View } from './types'
+
+type RightTab = 'exec' | 'browser'
+
+/** 从文本里识别可在右侧打开的网址 / 本地可预览文件 */
+function detectUrl(text: string): string | null {
+  const web = text.match(/(https?:\/\/[^\s<>"')\]]+)/i)
+  if (web) return web[1].replace(/[.,;]+$/, '')
+  const file = text.match(/(\/[\w./~-]+\.(?:pdf|png|jpe?g|gif|svg|html?))/i)
+  if (file) return `file://${file[1]}`
+  return null
+}
 
 export default function App(): JSX.Element {
   const [view, setView] = useState<View>('chat')
@@ -14,16 +26,19 @@ export default function App(): JSX.Element {
   const [workdir, setWorkdir] = useState('')
   const [sessions, setSessions] = useState<SessionItem[]>([])
   const [currentSession, setCurrentSession] = useState<string | null>(null)
+  const [rightTab, setRightTab] = useState<RightTab>('exec')
+  const [browserUrl, setBrowserUrl] = useState('')
   const sessionRef = useRef<string | null>(null)
+  const runBufferRef = useRef('')
+  const autoOpenedRef = useRef(false)
 
-  const refreshStatus = (): void => {
-    void window.nova.status().then((s) => setStatus(s as HermesStatus))
-  }
-  const refreshWorkdir = (): void => {
-    void window.nova.getSettings().then((s) => setWorkdir((s as { workdir?: string }).workdir ?? ''))
-  }
-  const refreshSessions = (): void => {
-    void window.nova.listSessions().then((s) => setSessions(s as SessionItem[]))
+  const refreshStatus = (): void => void window.nova.status().then((s) => setStatus(s as HermesStatus))
+  const refreshWorkdir = (): void => void window.nova.getSettings().then((s) => setWorkdir((s as { workdir?: string }).workdir ?? ''))
+  const refreshSessions = (): void => void window.nova.listSessions().then((s) => setSessions(s as SessionItem[]))
+
+  const openUrl = (u: string): void => {
+    setBrowserUrl(u)
+    setRightTab('browser')
   }
 
   const pickFolder = async (): Promise<void> => {
@@ -61,9 +76,16 @@ export default function App(): JSX.Element {
             }
             return [...m, { role: 'agent', text: evt.chunk, id: evt.runId }]
           })
+          runBufferRef.current += evt.chunk
+          if (!autoOpenedRef.current) {
+            const u = detectUrl(runBufferRef.current)
+            if (u) {
+              autoOpenedRef.current = true
+              openUrl(u)
+            }
+          }
           break
         case 'session':
-          // 捕获/更新当前会话 id
           if (!sessionRef.current) {
             sessionRef.current = evt.sessionId
             setCurrentSession(evt.sessionId)
@@ -86,8 +108,15 @@ export default function App(): JSX.Element {
 
   const send = async (text: string): Promise<void> => {
     if (!text.trim() || running) return
+    const url = detectUrl(text)
+    if (url) openUrl(url)
+    // 纯网址 → 只在右侧打开，不跑 Agent
+    if (url && text.trim() === url) return
+
     setMessages((m) => [...m, { role: 'user', text }])
     setSteps([])
+    runBufferRef.current = ''
+    autoOpenedRef.current = !!url
     setRunning(true)
     await window.nova.run(text, sessionRef.current ?? undefined)
   }
@@ -98,6 +127,7 @@ export default function App(): JSX.Element {
     setMessages([])
     setSteps([])
     setRunning(false)
+    setRightTab('exec')
     setView('chat')
   }
 
@@ -125,7 +155,23 @@ export default function App(): JSX.Element {
       {view === 'chat' ? (
         <>
           <Conversation messages={messages} running={running} workdir={workdir} onSend={send} onPickFolder={pickFolder} />
-          <ExecutionPanel steps={steps} running={running} />
+          <div className="right-col">
+            <div className="right-tabs drag">
+              <button className={`rtab ${rightTab === 'exec' ? 'active' : ''}`} onClick={() => setRightTab('exec')}>
+                ⚡ 执行{running && <span className="rdot" />}
+              </button>
+              <button
+                className={`rtab ${rightTab === 'browser' ? 'active' : ''}`}
+                onClick={() => setRightTab('browser')}
+                disabled={!browserUrl}
+              >
+                🌐 浏览器
+              </button>
+            </div>
+            <div className="right-content">
+              {rightTab === 'browser' && browserUrl ? <Browser url={browserUrl} /> : <ExecutionPanel steps={steps} running={running} />}
+            </div>
+          </div>
         </>
       ) : (
         <Settings

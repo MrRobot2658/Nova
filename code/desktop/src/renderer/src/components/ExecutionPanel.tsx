@@ -16,12 +16,7 @@ export default function ExecutionPanel({ steps, running }: Props): JSX.Element {
   const allDone = steps.length > 0 && !running && steps.every((s) => s.status !== 'running')
 
   return (
-    <aside className="exec">
-      <header className="titlebar drag">
-        Nova 的执行
-        {running && <span className="exec-live">运行中</span>}
-      </header>
-
+    <div className="pane">
       <div className="exec-body">
         {steps.length === 0 ? (
           <div className="exec-empty">
@@ -46,6 +41,6 @@ export default function ExecutionPanel({ steps, running }: Props): JSX.Element {
           </>
         )}
       </div>
-    </aside>
+    </div>
   )
 }

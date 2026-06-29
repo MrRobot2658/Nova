@@ -359,6 +359,34 @@ body {
 .tab { display: inline-flex; align-items: center; }
 .tab-ico { margin-right: 5px; font-size: 13px; }
 
+/* ── 右侧列：执行 / 浏览器 ── */
+.right-col { display: flex; flex-direction: column; background: var(--panel); border-left: 1px solid var(--line); }
+.right-tabs { flex: none; height: 52px; display: flex; align-items: center; gap: 4px; padding: 0 12px; border-bottom: 1px solid var(--line); }
+.rtab {
+  -webkit-app-region: no-drag; cursor: pointer; border: none; background: none; font-size: 13px; font-weight: 600;
+  color: var(--muted); padding: 7px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
+}
+.rtab:hover:not(:disabled) { background: #f0f1f4; color: var(--ink); }
+.rtab.active { background: rgba(99,102,241,.1); color: var(--indigo-dark); }
+.rtab:disabled { opacity: .45; cursor: default; }
+.rdot { width: 6px; height: 6px; border-radius: 50%; background: var(--indigo); animation: pulse 1.2s ease-in-out infinite; }
+.right-content { flex: 1; min-height: 0; display: flex; }
+.pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* 迷你浏览器 */
+.browser-pane { background: #fff; }
+.browser-bar { flex: none; display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.nav-ico {
+  -webkit-app-region: no-drag; width: 28px; height: 28px; border: none; background: #f0f1f4; border-radius: 8px;
+  cursor: pointer; font-size: 15px; color: #334155; display: grid; place-items: center;
+}
+.nav-ico:hover { background: #e6e7ec; }
+.addr { flex: 1; font-size: 12.5px; padding: 7px 11px; border: 1px solid var(--line-strong); border-radius: 9px; outline: none; font-family: inherit; }
+.addr:focus { border-color: var(--indigo); }
+.webview { flex: 1 1 auto; min-height: 0; width: 100%; border: none; background: #fff; }
+.browser-progress { height: 2px; background: linear-gradient(90deg, transparent, var(--indigo), transparent); background-size: 40% 100%; animation: prog 1s linear infinite; }
+@keyframes prog { 0% { background-position: -40% 0; } 100% { background-position: 140% 0; } }
+
 /* 滚动条 */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb { background: #d8dbe2; border-radius: 8px; }
