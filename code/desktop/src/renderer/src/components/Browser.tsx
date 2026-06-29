@@ -36,18 +36,17 @@ export default function Browser({ url }: { url: string }): JSX.Element {
 
   // 仅挂事件监听；plugins/src 通过属性在元素创建时设置（早于 guest 创建，PDF 才能渲染）
   const attach = (el: HTMLElement | null): void => {
-    if (!el || ref.current === el) return
+    if (!el) return
     const wv = el as WebviewEl
+    setWebview(wv) // 注册到自动化桥（幂等：StrictMode 重挂载也要重新登记）
+    if (ref.current === wv) return // 监听器已挂
     ref.current = wv
-    setWebview(wv) // 注册到自动化桥
-    el.addEventListener('did-start-loading', () => setLoading(true))
-    el.addEventListener('did-stop-loading', () => {
+    wv.addEventListener('did-start-loading', () => setLoading(true))
+    wv.addEventListener('did-stop-loading', () => {
       setLoading(false)
       setAddr(wv.getURL())
     })
   }
-
-  useEffect(() => () => setWebview(null), [])
 
   useEffect(() => setAddr(url), [url])
 

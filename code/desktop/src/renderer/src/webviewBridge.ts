@@ -9,10 +9,36 @@ type WebviewEl = HTMLElement & {
 }
 
 let el: WebviewEl | null = null
+let ready = false
 let navHook: ((url: string) => void) | null = null
 
 export function setWebview(w: HTMLElement | null): void {
   el = w as WebviewEl | null
+  ready = false
+  if (el) {
+    const mark = (): void => {
+      ready = true
+    }
+    el.addEventListener('dom-ready', mark)
+    el.addEventListener('did-stop-loading', mark)
+  }
+}
+
+/** 等待 webview 的 guest 就绪（dom-ready），避免命令早于附加 */
+function whenReady(w: WebviewEl, ms = 8000): Promise<void> {
+  return new Promise((resolve) => {
+    if (ready) return resolve()
+    const done = (): void => {
+      ready = true
+      w.removeEventListener('dom-ready', done)
+      resolve()
+    }
+    w.addEventListener('dom-ready', done)
+    setTimeout(() => {
+      w.removeEventListener('dom-ready', done)
+      resolve()
+    }, ms)
+  })
 }
 
 /** 导航发生时通知 App（切到浏览器 tab 等） */
@@ -50,6 +76,7 @@ export interface BrowserCommand {
 
 export async function execBrowser(cmd: BrowserCommand): Promise<unknown> {
   if (!el) return { ok: false, error: 'browser not ready (open the 浏览器 panel first)' }
+  await whenReady(el)
   try {
     switch (cmd.action) {
       case 'navigate': {

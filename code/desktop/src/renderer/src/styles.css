@@ -376,8 +376,10 @@ body {
 .rtab.active { background: rgba(99,102,241,.1); color: var(--indigo-dark); }
 .rtab:disabled { opacity: .45; cursor: default; }
 .rdot { width: 6px; height: 6px; border-radius: 50%; background: var(--indigo); animation: pulse 1.2s ease-in-out infinite; }
-.right-content { flex: 1; min-height: 0; display: flex; }
-.pane-host { flex: 1; min-height: 0; }
+.right-content { flex: 1; min-height: 0; position: relative; }
+.pane-host { position: absolute; inset: 0; display: flex; }
+.pane-host.shown { visibility: visible; z-index: 2; }
+.pane-host.hidden { visibility: hidden; z-index: 1; } /* 保留布局以维持 webview 附加 */
 .pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
 /* 迷你浏览器 */

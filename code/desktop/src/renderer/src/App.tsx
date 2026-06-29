@@ -43,7 +43,7 @@ export default function App(): JSX.Element {
   const [sessions, setSessions] = useState<SessionItem[]>([])
   const [currentSession, setCurrentSession] = useState<string | null>(null)
   const [rightTab, setRightTab] = useState<RightTab>('exec')
-  const [browserUrl, setBrowserUrl] = useState('')
+  const [browserUrl, setBrowserUrl] = useState('about:blank')
   const [rightWidth, setRightWidth] = useState(420)
   const [dragging, setDragging] = useState(false)
   const sessionRef = useRef<string | null>(null)
@@ -228,10 +228,11 @@ export default function App(): JSX.Element {
               </button>
             </div>
             <div className="right-content">
-              <div className="pane-host" style={{ display: rightTab === 'exec' ? 'flex' : 'none' }}>
+              <div className={`pane-host ${rightTab === 'exec' ? 'shown' : 'hidden'}`}>
                 <ExecutionPanel steps={steps} running={running} />
               </div>
-              <div className="pane-host" style={{ display: rightTab === 'browser' ? 'flex' : 'none' }}>
+              {/* 浏览器面板始终保持在布局中（用 visibility 切换），否则 display:none 会让 webview 不附加、dom-ready 不触发 */}
+              <div className={`pane-host ${rightTab === 'browser' ? 'shown' : 'hidden'}`}>
                 <Browser url={browserUrl} />
               </div>
             </div>
