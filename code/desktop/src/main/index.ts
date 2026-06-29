@@ -1,6 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, session } from 'electron'
 import { join } from 'path'
 import { HermesManager } from './hermes'
+import { startBridge, resolveBrowserResult } from './bridge'
 
 let mainWindow: BrowserWindow | null = null
 const hermes = new HermesManager()
@@ -74,6 +75,10 @@ app.whenReady().then(async () => {
     const r = await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] })
     return r.canceled || r.filePaths.length === 0 ? null : r.filePaths[0]
   })
+
+  // 浏览器自动化桥：HTTP 控制服务 ↔ 渲染层 webview
+  startBridge(() => mainWindow)
+  ipcMain.on('browser:result', (_event, id: number, result: unknown) => resolveBrowserResult(id, result))
 
   createWindow()
 

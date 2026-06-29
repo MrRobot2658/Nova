@@ -11,10 +11,13 @@
 
 ## 功能增强
 - [x] **浏览器模拟 Chrome**：webview 用纯 Chrome UA（去掉 Electron/Nova 标识），避免小红书等站点按非标准浏览器拦截。
-- [ ] **爬虫 / 数据采集 skill 基于内置浏览器**：采集类能力统一走右侧 webview 而非 headless——
-  复用真实 Chrome UA + 持久化 partition（登录态/cookie）规避反爬；通过 `webview.executeJavaScript()`
-  提取 DOM、模拟滚动加载/翻页、截图取证；主进程暴露 webview 自动化桥给 Hermes/skill 调用。
-  （对应 browser-act / china-web-data-collection / wenshu-api-crawl 等 skill 的真实实现路径。）
+- [x] **浏览器自动化桥**：主进程开本机 HTTP 控制服务（端口写入 `~/.nova/bridge.json`，并通过
+  环境变量 `NOVA_BROWSER_BRIDGE` 传给 Hermes 子进程）。技能用 `POST $NOVA_BROWSER_BRIDGE/browser`
+  驱动右侧 webview：`navigate` / `text` / `html` / `info` / `eval`(js) / `scrollBottom` / `screenshot`。
+  实现见 `src/main/bridge.ts` + `src/renderer/src/webviewBridge.ts`。
+- [ ] **爬虫 / 数据采集 skill 落地**：基于上面的桥实现 browser-act / china-web-data-collection /
+  wenshu-api-crawl 等——封装成 Hermes skill（curl 调用桥），处理滚动加载/翻页/分页、字段抽取、入库。
+- [ ] **桥安全**：当前 localhost 无鉴权，后续加 token（写入 bridge.json，请求头校验）。
 - [ ] **迷你浏览器**：`target=_blank` 弹窗在同一 webview 内打开；多标签页。
 - [ ] **真实语音 STT**：Web Speech API 在 Electron 不稳定，改为录音 + ASR endpoint（需指定服务）。
 - [ ] **会话项操作**：hover 重命名 / 删除（`hermes sessions rename` / `delete`）。

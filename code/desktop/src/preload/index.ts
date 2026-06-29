@@ -39,7 +39,15 @@ const api = {
     const listener = (_e: unknown, evt: unknown): void => cb(evt)
     ipcRenderer.on('hermes:event', listener)
     return () => ipcRenderer.removeListener('hermes:event', listener)
-  }
+  },
+  /** 浏览器自动化桥：接收来自主进程的指令 */
+  onBrowserCommand: (cb: (cmd: { id: number; action: string; [k: string]: unknown }) => void): (() => void) => {
+    const listener = (_e: unknown, cmd: { id: number; action: string }): void => cb(cmd)
+    ipcRenderer.on('browser:command', listener)
+    return () => ipcRenderer.removeListener('browser:command', listener)
+  },
+  /** 回传指令执行结果 */
+  browserResult: (id: number, result: unknown): void => ipcRenderer.send('browser:result', id, result)
 }
 
 contextBridge.exposeInMainWorld('nova', api)

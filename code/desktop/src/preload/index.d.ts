@@ -22,6 +22,8 @@ declare global {
       selectFolder(): Promise<string | null>
       resolveFile(keyword: string): Promise<string | null>
       onEvent(cb: (evt: unknown) => void): () => void
+      onBrowserCommand(cb: (cmd: { id: number; action: string; [k: string]: unknown }) => void): () => void
+      browserResult(id: number, result: unknown): void
     }
   }
 }

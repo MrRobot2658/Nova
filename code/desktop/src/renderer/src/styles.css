@@ -377,6 +377,7 @@ body {
 .rtab:disabled { opacity: .45; cursor: default; }
 .rdot { width: 6px; height: 6px; border-radius: 50%; background: var(--indigo); animation: pulse 1.2s ease-in-out infinite; }
 .right-content { flex: 1; min-height: 0; display: flex; }
+.pane-host { flex: 1; min-height: 0; }
 .pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
 /* 迷你浏览器 */

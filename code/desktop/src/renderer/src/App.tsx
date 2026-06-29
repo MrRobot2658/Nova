@@ -5,6 +5,7 @@ import ExecutionPanel from './components/ExecutionPanel'
 import Browser from './components/Browser'
 import Settings from './components/Settings'
 import type { HermesStatus, Msg, NovaEvent, SessionItem, Step, View } from './types'
+import { execBrowser, setNavHook, type BrowserCommand } from './webviewBridge'
 
 type RightTab = 'exec' | 'browser'
 
@@ -87,6 +88,12 @@ export default function App(): JSX.Element {
     refreshStatus()
     refreshWorkdir()
     refreshSessions()
+    setNavHook(() => setRightTab('browser'))
+
+    // 浏览器自动化桥：执行主进程下发的指令并回传结果
+    const offCmd = window.nova.onBrowserCommand((cmd) => {
+      void execBrowser(cmd as BrowserCommand).then((result) => window.nova.browserResult(cmd.id, result))
+    })
 
     const off = window.nova.onEvent((raw) => {
       const evt = raw as NovaEvent
@@ -137,7 +144,10 @@ export default function App(): JSX.Element {
           break
       }
     })
-    return off
+    return () => {
+      off()
+      offCmd()
+    }
   }, [])
 
   const send = async (text: string): Promise<void> => {
@@ -213,16 +223,17 @@ export default function App(): JSX.Element {
               <button className={`rtab ${rightTab === 'exec' ? 'active' : ''}`} onClick={() => setRightTab('exec')}>
                 ⚡ 执行{running && <span className="rdot" />}
               </button>
-              <button
-                className={`rtab ${rightTab === 'browser' ? 'active' : ''}`}
-                onClick={() => setRightTab('browser')}
-                disabled={!browserUrl}
-              >
+              <button className={`rtab ${rightTab === 'browser' ? 'active' : ''}`} onClick={() => setRightTab('browser')}>
                 🌐 浏览器
               </button>
             </div>
             <div className="right-content">
-              {rightTab === 'browser' && browserUrl ? <Browser url={browserUrl} /> : <ExecutionPanel steps={steps} running={running} />}
+              <div className="pane-host" style={{ display: rightTab === 'exec' ? 'flex' : 'none' }}>
+                <ExecutionPanel steps={steps} running={running} />
+              </div>
+              <div className="pane-host" style={{ display: rightTab === 'browser' ? 'flex' : 'none' }}>
+                <Browser url={browserUrl} />
+              </div>
             </div>
           </div>
         </>

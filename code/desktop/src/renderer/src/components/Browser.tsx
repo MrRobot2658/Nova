@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { setWebview } from '../webviewBridge'
 
 type WebviewEl = HTMLElement & {
   goBack(): void
@@ -38,12 +39,15 @@ export default function Browser({ url }: { url: string }): JSX.Element {
     if (!el || ref.current === el) return
     const wv = el as WebviewEl
     ref.current = wv
+    setWebview(wv) // 注册到自动化桥
     el.addEventListener('did-start-loading', () => setLoading(true))
     el.addEventListener('did-stop-loading', () => {
       setLoading(false)
       setAddr(wv.getURL())
     })
   }
+
+  useEffect(() => () => setWebview(null), [])
 
   useEffect(() => setAddr(url), [url])
 
