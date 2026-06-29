@@ -1,5 +1,5 @@
 import { spawn, execFileSync, execSync, type ChildProcess } from 'child_process'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync, readFileSync, readdirSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
 import { loadSettings, saveSettings, type NovaSettings } from './settings'
@@ -235,6 +235,42 @@ export class HermesManager {
     } catch {
       return []
     }
+  }
+
+  /** 按关键词在常用目录里查找可预览文件，返回 file:// URL（用于「打开 产品介绍」这类命令） */
+  resolveFile(keyword: string): string | null {
+    const exts = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.html', '.htm']
+    const kw = keyword.replace(/\.[a-z0-9]+$/i, '').toLowerCase().trim()
+    if (!kw) return null
+    const roots = [this.settings.workdir?.trim(), join(homedir(), 'Downloads'), join(homedir(), 'Desktop'), join(homedir(), 'Documents')].filter(Boolean) as string[]
+    const skip = new Set(['node_modules', '.git', 'Library', '.Trash', '.cache', 'release', 'out'])
+
+    const queue: Array<{ dir: string; depth: number }> = roots.map((d) => ({ dir: d, depth: 0 }))
+    const seen = new Set<string>()
+    let scanned = 0
+    while (queue.length) {
+      const { dir, depth } = queue.shift() as { dir: string; depth: number }
+      if (seen.has(dir)) continue
+      seen.add(dir)
+      let entries: Array<{ name: string; isDirectory(): boolean }>
+      try {
+        entries = readdirSync(dir, { withFileTypes: true })
+      } catch {
+        continue
+      }
+      for (const e of entries) {
+        if (e.name.startsWith('.')) continue
+        const full = join(dir, e.name)
+        if (e.isDirectory()) {
+          if (depth < 5 && !skip.has(e.name)) queue.push({ dir: full, depth: depth + 1 })
+        } else {
+          const lower = e.name.toLowerCase()
+          if (exts.some((x) => lower.endsWith(x)) && lower.includes(kw)) return `file://${encodeURI(full)}`
+        }
+      }
+      if (++scanned > 5000) break
+    }
+    return null
   }
 
   async test(): Promise<TestResult> {

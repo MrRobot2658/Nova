@@ -8,6 +8,18 @@ import type { HermesStatus, Msg, NovaEvent, SessionItem, Step, View } from './ty
 
 type RightTab = 'exec' | 'browser'
 
+/** 识别「打开/预览 X」这类命令，返回目标（url / 绝对路径 / 关键词） */
+function parseOpenCommand(text: string): { kind: 'url' | 'path' | 'keyword'; value: string } | null {
+  const m = text.trim().match(/^(?:(?:在)?(?:内置)?浏览器(?:里|中)?\s*)?(?:打开|预览|查看|访问|open)\s+(.+)$/i)
+  if (!m) return null
+  const v = m[1].trim().replace(/^["'`「【]+|["'`」】]+$/g, '').trim()
+  if (!v) return null
+  if (/^(https?|file):\/\//i.test(v)) return { kind: 'url', value: v }
+  if (v.startsWith('/')) return { kind: 'path', value: v }
+  if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(v)) return { kind: 'url', value: `https://${v}` } // 裸域名
+  return { kind: 'keyword', value: v }
+}
+
 /** 从文本里识别可在右侧打开的网址 / 本地可预览文件（支持中文路径） */
 function detectUrl(text: string): string | null {
   const web = text.match(/(https?:\/\/[^\s<>"')\]]+)/i)
@@ -111,9 +123,27 @@ export default function App(): JSX.Element {
 
   const send = async (text: string): Promise<void> => {
     if (!text.trim() || running) return
+
+    // 1) 显式「打开/预览 X」命令 → 内置浏览器
+    const op = parseOpenCommand(text)
+    if (op) {
+      let target: string | null = null
+      if (op.kind === 'url') target = op.value
+      else if (op.kind === 'path') target = `file://${encodeURI(op.value)}`
+      else target = await window.nova.resolveFile(op.value) // 关键词 → 查找本地文件
+      if (target) {
+        openUrl(target)
+        return // 直接在右侧打开，不跑 Agent
+      }
+      if (op.kind === 'keyword') {
+        // 没找到本地文件：提示并交给 Agent 继续尝试
+        setMessages((m) => [...m, { role: 'agent', text: `没在常用目录找到「${op.value}」，交给 Hermes 处理…` }])
+      }
+    }
+
+    // 2) 文本里含 url/路径 → 顺带在右侧打开
     const url = detectUrl(text)
     if (url) openUrl(url)
-    // 纯网址 → 只在右侧打开，不跑 Agent
     if (url && text.trim() === url) return
 
     setMessages((m) => [...m, { role: 'user', text }])

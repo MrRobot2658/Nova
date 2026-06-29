@@ -66,6 +66,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('mcp:add', (_event, input) => hermes.addMcp(input))
   ipcMain.handle('mcp:remove', (_event, name: string) => hermes.removeMcp(name))
   ipcMain.handle('usage:metrics', () => hermes.usageMetrics())
+  ipcMain.handle('file:resolve', (_event, keyword: string) => hermes.resolveFile(keyword))
 
   // 选择工作目录
   ipcMain.handle('dialog:select-folder', async () => {

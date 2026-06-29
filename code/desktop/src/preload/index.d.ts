@@ -20,6 +20,7 @@ declare global {
       getSettings(): Promise<unknown>
       setSettings(patch: Record<string, unknown>): Promise<unknown>
       selectFolder(): Promise<string | null>
+      resolveFile(keyword: string): Promise<string | null>
       onEvent(cb: (evt: unknown) => void): () => void
     }
   }

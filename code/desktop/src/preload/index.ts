@@ -32,6 +32,8 @@ const api = {
   setSettings: (patch: Record<string, unknown>): Promise<unknown> => ipcRenderer.invoke('settings:set', patch),
   /** 选择工作目录，返回路径或 null */
   selectFolder: (): Promise<string | null> => ipcRenderer.invoke('dialog:select-folder'),
+  /** 按关键词解析本地可预览文件，返回 file:// URL 或 null */
+  resolveFile: (keyword: string): Promise<string | null> => ipcRenderer.invoke('file:resolve', keyword),
   /** 订阅执行事件流；返回取消订阅函数 */
   onEvent: (cb: (evt: unknown) => void): (() => void) => {
     const listener = (_e: unknown, evt: unknown): void => cb(evt)
