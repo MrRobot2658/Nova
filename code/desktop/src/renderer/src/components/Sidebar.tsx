@@ -29,12 +29,14 @@ interface Props {
   view: View
   sessions: SessionItem[]
   currentSession: string | null
+  theme: 'light' | 'dark'
   onNavigate: (v: View) => void
   onNewSession: () => void
   onSelectSession: (id: string) => void
+  onToggleTheme: () => void
 }
 
-export default function Sidebar({ status, view, sessions, currentSession, onNavigate, onNewSession, onSelectSession }: Props): JSX.Element {
+export default function Sidebar({ status, view, sessions, currentSession, theme, onNavigate, onNewSession, onSelectSession, onToggleTheme }: Props): JSX.Element {
   const label = status ? MODE_LABEL[status.mode] : '连接中…'
   const dotClass = status?.ready ? (status.mode === 'simulated' ? 'warn' : 'ok') : ''
 
@@ -86,6 +88,9 @@ export default function Sidebar({ status, view, sessions, currentSession, onNavi
             </span>
           </div>
         </div>
+        <button className="nav-btn foot" onClick={onToggleTheme}>
+          {theme === 'dark' ? '☀️ 亮色模式' : '🌙 暗色模式'}
+        </button>
         <button className={`nav-btn foot ${view === 'settings' ? 'active' : ''}`} onClick={() => onNavigate('settings')}>
           ⚙️ 设置
         </button>

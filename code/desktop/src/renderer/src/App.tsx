@@ -68,6 +68,14 @@ export default function App(): JSX.Element {
   const [browserUrl, setBrowserUrl] = useState('about:blank')
   const [rightWidth, setRightWidth] = useState(420)
   const [dragging, setDragging] = useState(false)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => (document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'))
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('nova-theme', theme)
+  }, [theme])
+
+  const toggleTheme = (): void => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
   const sessionRef = useRef<string | null>(null)
   const runBufferRef = useRef('')
   const autoOpenedRef = useRef(false)
@@ -236,9 +244,11 @@ export default function App(): JSX.Element {
         view={view}
         sessions={sessions}
         currentSession={currentSession}
+        theme={theme}
         onNavigate={setView}
         onNewSession={newSession}
         onSelectSession={selectSession}
+        onToggleTheme={toggleTheme}
       />
       {view === 'chat' ? (
         <>
