@@ -12,8 +12,20 @@ const api = {
   status: (): Promise<unknown> => ipcRenderer.invoke('hermes:status'),
   /** 测试 Hermes 连接 */
   test: (): Promise<unknown> => ipcRenderer.invoke('hermes:test'),
-  /** 读取 Hermes 基本属性（模型/Profile/Skill/MCP/用量） */
+  /** 读取 Hermes 连接概况（模式/模型/Profile） */
   info: (): Promise<unknown> => ipcRenderer.invoke('hermes:info'),
+  /** Profile 列表 */
+  listProfiles: (): Promise<unknown> => ipcRenderer.invoke('profiles:list'),
+  /** Skill：列表 / 安装 / 卸载 */
+  listSkills: (): Promise<unknown> => ipcRenderer.invoke('skills:list'),
+  installSkill: (id: string): Promise<unknown> => ipcRenderer.invoke('skills:install', id),
+  uninstallSkill: (name: string): Promise<unknown> => ipcRenderer.invoke('skills:uninstall', name),
+  /** MCP：列表 / 添加 / 移除 */
+  listMcp: (): Promise<unknown> => ipcRenderer.invoke('mcp:list'),
+  addMcp: (input: Record<string, unknown>): Promise<unknown> => ipcRenderer.invoke('mcp:add', input),
+  removeMcp: (name: string): Promise<unknown> => ipcRenderer.invoke('mcp:remove', name),
+  /** 用量指标 */
+  usageMetrics: (): Promise<unknown> => ipcRenderer.invoke('usage:metrics'),
   /** 读取设置 */
   getSettings: (): Promise<unknown> => ipcRenderer.invoke('settings:get'),
   /** 写入设置（部分字段） */

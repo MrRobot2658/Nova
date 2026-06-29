@@ -57,6 +57,15 @@ app.whenReady().then(async () => {
   ipcMain.handle('sessions:list', () => hermes.listSessions())
   ipcMain.handle('session:load', (_event, id: string) => hermes.loadSession(id))
 
+  ipcMain.handle('profiles:list', () => hermes.listProfiles())
+  ipcMain.handle('skills:list', () => hermes.listSkills())
+  ipcMain.handle('skills:install', (_event, id: string) => hermes.installSkill(id))
+  ipcMain.handle('skills:uninstall', (_event, name: string) => hermes.uninstallSkill(name))
+  ipcMain.handle('mcp:list', () => hermes.listMcp())
+  ipcMain.handle('mcp:add', (_event, input) => hermes.addMcp(input))
+  ipcMain.handle('mcp:remove', (_event, name: string) => hermes.removeMcp(name))
+  ipcMain.handle('usage:metrics', () => hermes.usageMetrics())
+
   // 选择工作目录
   ipcMain.handle('dialog:select-folder', async () => {
     const r = await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] })

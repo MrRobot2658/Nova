@@ -22,25 +22,48 @@ export interface TestResult {
   message: string
 }
 
-export interface SkillGroup {
-  group: string
-  count: number
-  items: string[]
-}
-
 export interface HermesInfo {
   connected: boolean
   mode: HermesMode
   bin: string | null
   model: string
   profile: string
-  /** 离线回退用的静态 Skill 目录 */
-  skills: SkillGroup[]
-  /** 已连接时由真实命令获取的文本输出 */
-  profilesText: string | null
-  skillsText: string | null
-  mcpText: string | null
-  insightsText: string | null
+}
+
+export interface ProfileRow {
+  name: string
+  model: string
+  isDefault: boolean
+}
+
+export interface SkillRow {
+  name: string
+  category: string
+  source: string
+  trust: string
+  status: string
+}
+
+export interface McpRow {
+  name: string
+  detail: string
+}
+
+export interface McpAddInput {
+  name: string
+  url?: string
+  command?: string
+  args?: string
+}
+
+export interface ActionResult {
+  ok: boolean
+  message: string
+}
+
+export interface UsageMetric {
+  label: string
+  value: string
 }
 
 export interface SessionItem {
@@ -66,18 +89,6 @@ export type NovaEvent =
   | { type: 'done'; runId: string }
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
-
-/** Nova 预制 Skill 目录（未连接时的静态展示） */
-const SKILLS: SkillGroup[] = [
-  {
-    group: '🏢 办公自动化',
-    count: 13,
-    items: ['feishu-doc-create', 'google-workspace', 'himalaya', 'notion', 'airtable', 'linear', 'obsidian', 'apple-notes', 'apple-reminders', 'powerpoint', 'nano-pdf', 'ocr-and-documents', 'qwenvl-ocr']
-  },
-  { group: '🕷️ 数据采集', count: 5, items: ['agent-reach', 'browser-act', 'china-web-data-collection', 'wenshu-api-crawl', 'blogwatcher'] },
-  { group: '⚡ 自动化引擎', count: 4, items: ['cronjob', 'webhook-subscriptions', 'macos-computer-use', 'macos-browser-automation'] },
-  { group: '📤 内容发布', count: 2, items: ['wechat-article-formatter', 'post-anywhere'] }
-]
 
 /**
  * 检测 → 连接 → 配置 → 执行 Hermes。
@@ -241,19 +252,134 @@ export class HermesManager {
 
   async info(): Promise<HermesInfo> {
     const st = this.refresh()
-    const connected = st.mode !== 'simulated' && !!st.bin
     return {
-      connected,
+      connected: st.mode !== 'simulated' && !!st.bin,
       mode: st.mode,
       bin: st.bin,
       model: this.settings.model,
-      profile: this.settings.profile,
-      skills: SKILLS,
-      profilesText: connected ? this.query(['profile', 'list']) : null,
-      skillsText: connected ? this.query(['skills', 'list']) : null,
-      mcpText: connected ? this.query(['mcp', 'list']) : null,
-      insightsText: connected ? this.query(['insights', '--days', '30']) : null
+      profile: this.settings.profile
     }
+  }
+
+  private get connected(): boolean {
+    return this._status.mode !== 'simulated' && !!this._status.bin
+  }
+
+  /** 运行一个会改状态的子命令，返回执行结果 */
+  private action(args: string[], timeoutMs = 60000): ActionResult {
+    const bin = this._status.bin
+    if (!bin) return { ok: false, message: '未连接 Hermes' }
+    try {
+      const out = execFileSync(bin, args, { stdio: ['ignore', 'pipe', 'pipe'], timeout: timeoutMs, maxBuffer: 16 * 1024 * 1024, env: { ...process.env, NO_COLOR: '1' } }).toString().trim()
+      return { ok: true, message: out || '完成' }
+    } catch (e) {
+      const err = e as { stdout?: Buffer; stderr?: Buffer; message?: string }
+      const msg = `${err.stdout?.toString() ?? ''}${err.stderr?.toString() ?? ''}`.trim() || err.message || '执行失败'
+      return { ok: false, message: msg }
+    }
+  }
+
+  /** Profile 列表（解析自 `hermes profile list`） */
+  async listProfiles(): Promise<ProfileRow[]> {
+    if (!this.connected) return []
+    const out = this.query(['profile', 'list'])
+    if (!out) return []
+    const rows: ProfileRow[] = []
+    for (const raw of out.split('\n')) {
+      const line = raw.trim()
+      if (!line) continue
+      if (line.includes('Profile') && line.includes('Model')) continue
+      if (/^[\s─—-]+$/.test(line)) continue
+      const isDefault = line.includes('◆')
+      const cols = line.replace('◆', '').split(/\s{2,}/).map((s) => s.trim()).filter(Boolean)
+      if (!cols.length) continue
+      rows.push({ name: cols[0], model: cols[1] && cols[1] !== '—' ? cols[1] : '', isDefault })
+    }
+    return rows
+  }
+
+  /** 已安装 Skill 列表（解析自 `hermes skills list` 的表格） */
+  async listSkills(): Promise<SkillRow[]> {
+    if (!this.connected) return []
+    const out = this.query(['skills', 'list'])
+    if (!out) return []
+    const rows: SkillRow[] = []
+    for (const line of out.split('\n')) {
+      if (!line.includes('│')) continue // 数据行用 │，表头用 ┃
+      const inner = line.split('│').map((c) => c.trim())
+      inner.shift()
+      inner.pop()
+      if (inner.length < 5) continue
+      const [name, category, source, trust, status] = inner
+      if (!name || name === 'Name') continue
+      rows.push({ name, category, source, trust, status })
+    }
+    return rows
+  }
+
+  async installSkill(idOrUrl: string): Promise<ActionResult> {
+    if (!idOrUrl.trim()) return { ok: false, message: '请填写 Skill 名称或地址' }
+    return this.action(['skills', 'install', idOrUrl.trim()], 180000)
+  }
+
+  async uninstallSkill(name: string): Promise<ActionResult> {
+    return this.action(['skills', 'uninstall', name], 60000)
+  }
+
+  /** MCP 服务器列表（解析自 `hermes mcp list`） */
+  async listMcp(): Promise<McpRow[]> {
+    if (!this.connected) return []
+    const out = this.query(['mcp', 'list'])
+    if (!out || /no mcp servers/i.test(out)) return []
+    const rows: McpRow[] = []
+    for (const raw of out.split('\n')) {
+      const line = raw.trim()
+      if (!line) continue
+      if (/add one with|hermes mcp add|--url|--command|^usage:/i.test(line)) continue
+      if (/^[\s─—-]+$/.test(line)) continue
+      const cols = line.split(/\s{2,}/).map((s) => s.trim()).filter(Boolean)
+      if (!cols.length) continue
+      rows.push({ name: cols[0], detail: cols.slice(1).join(' · ') })
+    }
+    return rows
+  }
+
+  async addMcp(input: McpAddInput): Promise<ActionResult> {
+    if (!input.name?.trim()) return { ok: false, message: '请填写名称' }
+    const args = ['mcp', 'add', input.name.trim()]
+    if (input.url?.trim()) {
+      args.push('--url', input.url.trim())
+    } else if (input.command?.trim()) {
+      args.push('--command', input.command.trim())
+      if (input.args?.trim()) args.push('--args', ...input.args.trim().split(/\s+/))
+    } else {
+      return { ok: false, message: '请填写 URL 或命令' }
+    }
+    return this.action(args, 60000)
+  }
+
+  async removeMcp(name: string): Promise<ActionResult> {
+    return this.action(['mcp', 'remove', name], 30000)
+  }
+
+  /** Token 用量指标（解析自 `hermes insights`） */
+  async usageMetrics(): Promise<UsageMetric[]> {
+    if (!this.connected) return []
+    const out = this.query(['insights', '--days', '30'], 15000)
+    if (!out) return []
+    const metrics: UsageMetric[] = []
+    const add = (label: string, re: RegExp): void => {
+      const m = out.match(re)
+      if (m) metrics.push({ label, value: m[1].trim() })
+    }
+    add('会话数', /Sessions:\s*([\d,]+)/)
+    add('消息数', /Messages:\s*([\d,]+)/)
+    add('工具调用', /Tool calls:\s*([\d,]+)/)
+    add('输入 tokens', /Input tokens:\s*([\d,]+)/)
+    add('输出 tokens', /Output tokens:\s*([\d,]+)/)
+    add('总 tokens', /Total tokens:\s*([\d,]+)/)
+    add('预计成本', /(\$[\d.,]+)/)
+    return metrics
   }
 
   async run(text: string, sessionId?: string): Promise<{ runId: string }> {

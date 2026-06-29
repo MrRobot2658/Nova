@@ -9,6 +9,14 @@ declare global {
       status(): Promise<unknown>
       test(): Promise<unknown>
       info(): Promise<unknown>
+      listProfiles(): Promise<unknown>
+      listSkills(): Promise<unknown>
+      installSkill(id: string): Promise<unknown>
+      uninstallSkill(name: string): Promise<unknown>
+      listMcp(): Promise<unknown>
+      addMcp(input: Record<string, unknown>): Promise<unknown>
+      removeMcp(name: string): Promise<unknown>
+      usageMetrics(): Promise<unknown>
       getSettings(): Promise<unknown>
       setSettings(patch: Record<string, unknown>): Promise<unknown>
       selectFolder(): Promise<string | null>

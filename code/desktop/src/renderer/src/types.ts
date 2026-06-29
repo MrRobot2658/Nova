@@ -27,23 +27,41 @@ export interface TestResult {
   message: string
 }
 
-export interface SkillGroup {
-  group: string
-  count: number
-  items: string[]
-}
-
 export interface HermesInfo {
   connected: boolean
   mode: 'system' | 'bundled' | 'simulated'
   bin: string | null
   model: string
   profile: string
-  skills: SkillGroup[]
-  profilesText: string | null
-  skillsText: string | null
-  mcpText: string | null
-  insightsText: string | null
+}
+
+export interface ProfileRow {
+  name: string
+  model: string
+  isDefault: boolean
+}
+
+export interface SkillRow {
+  name: string
+  category: string
+  source: string
+  trust: string
+  status: string
+}
+
+export interface McpRow {
+  name: string
+  detail: string
+}
+
+export interface ActionResult {
+  ok: boolean
+  message: string
+}
+
+export interface UsageMetric {
+  label: string
+  value: string
 }
 
 export interface NovaSettings {
