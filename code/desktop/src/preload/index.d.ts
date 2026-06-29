@@ -3,7 +3,9 @@ export {}
 declare global {
   interface Window {
     nova: {
-      run(text: string): Promise<{ runId: string }>
+      run(text: string, sessionId?: string): Promise<{ runId: string }>
+      listSessions(): Promise<unknown>
+      loadSession(id: string): Promise<unknown>
       status(): Promise<unknown>
       test(): Promise<unknown>
       info(): Promise<unknown>

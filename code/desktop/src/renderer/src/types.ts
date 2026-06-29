@@ -54,12 +54,20 @@ export interface NovaSettings {
   workdir: string
 }
 
+export interface SessionItem {
+  id: string
+  title: string
+  preview: string
+  lastActive: string
+}
+
 export type NovaEvent =
   | { type: 'intent'; runId: string; text: string; intent: string }
   | { type: 'step-start'; runId: string; id: string; skill: string; desc: string }
   | { type: 'step-done'; runId: string; id: string; ok: boolean }
   | { type: 'output'; runId: string; chunk: string }
   | { type: 'result'; runId: string; text: string }
+  | { type: 'session'; runId: string; sessionId: string }
   | { type: 'error'; runId: string; message: string }
   | { type: 'done'; runId: string }
 

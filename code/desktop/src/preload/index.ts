@@ -2,8 +2,12 @@ import { contextBridge, ipcRenderer } from 'electron'
 
 /** 暴露给渲染层的最小化安全 API（contextIsolation 下通过 window.nova 访问）。 */
 const api = {
-  /** 执行一条自然语言指令 */
-  run: (text: string): Promise<{ runId: string }> => ipcRenderer.invoke('nova:run', text),
+  /** 执行一条自然语言指令（可选续接已有会话） */
+  run: (text: string, sessionId?: string): Promise<{ runId: string }> => ipcRenderer.invoke('nova:run', text, sessionId),
+  /** 会话列表（Hermes） */
+  listSessions: (): Promise<unknown> => ipcRenderer.invoke('sessions:list'),
+  /** 加载某会话历史 */
+  loadSession: (id: string): Promise<unknown> => ipcRenderer.invoke('session:load', id),
   /** 查询 Hermes 运行状态 */
   status: (): Promise<unknown> => ipcRenderer.invoke('hermes:status'),
   /** 测试 Hermes 连接 */

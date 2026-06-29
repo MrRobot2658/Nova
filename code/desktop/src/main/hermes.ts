@@ -43,12 +43,25 @@ export interface HermesInfo {
   insightsText: string | null
 }
 
+export interface SessionItem {
+  id: string
+  title: string
+  preview: string
+  lastActive: string
+}
+
+export interface SessionMsg {
+  role: 'user' | 'agent'
+  text: string
+}
+
 export type NovaEvent =
   | { type: 'intent'; runId: string; text: string; intent: string }
   | { type: 'step-start'; runId: string; id: string; skill: string; desc: string }
   | { type: 'step-done'; runId: string; id: string; ok: boolean }
   | { type: 'output'; runId: string; chunk: string }
   | { type: 'result'; runId: string; text: string }
+  | { type: 'session'; runId: string; sessionId: string }
   | { type: 'error'; runId: string; message: string }
   | { type: 'done'; runId: string }
 
@@ -159,11 +172,57 @@ export class HermesManager {
     const bin = this._status.bin
     if (!bin) return null
     try {
-      return execFileSync(bin, args, { stdio: ['ignore', 'pipe', 'pipe'], timeout: timeoutMs, env: { ...process.env, NO_COLOR: '1' } }).toString().trim()
+      return execFileSync(bin, args, { stdio: ['ignore', 'pipe', 'pipe'], timeout: timeoutMs, maxBuffer: 16 * 1024 * 1024, env: { ...process.env, NO_COLOR: '1' } }).toString().trim()
     } catch (e) {
       const err = e as { stdout?: Buffer; stderr?: Buffer }
       const out = `${err.stdout?.toString() ?? ''}${err.stderr?.toString() ?? ''}`.trim()
       return out || null
+    }
+  }
+
+  /** 会话列表（来自 Hermes，仅 cli 来源） */
+  async listSessions(limit = 50): Promise<SessionItem[]> {
+    if (this._status.mode === 'simulated' || !this._status.bin) return []
+    const out = this.query(['sessions', 'list', '--source', 'cli', '--limit', String(limit)])
+    if (!out) return []
+    const items: SessionItem[] = []
+    for (const raw of out.split('\n')) {
+      const line = raw.replace(/\s+$/, '')
+      if (!line.trim()) continue
+      if (line.includes('Last Active') && line.includes('ID')) continue
+      if (/^[\s─—-]+$/.test(line)) continue
+      const cols = line.split(/\s{2,}/).map((s) => s.trim()).filter(Boolean)
+      if (cols.length < 2) continue
+      const id = cols[cols.length - 1]
+      const lastActive = cols.length >= 3 ? cols[cols.length - 2] : ''
+      const title = cols[0] === '—' ? '' : cols[0]
+      const preview = cols.length >= 4 ? cols[1] : cols.length === 3 ? cols[1] : ''
+      items.push({ id, title, preview, lastActive })
+    }
+    return items
+  }
+
+  /** 加载某个会话的历史消息（用于点击会话后回填对话） */
+  async loadSession(id: string): Promise<SessionMsg[]> {
+    if (this._status.mode === 'simulated' || !this._status.bin) return []
+    const out = this.query(['sessions', 'export', '--session-id', id, '-'], 20000)
+    if (!out) return []
+    try {
+      const jsonLine = out.split('\n').find((l) => l.trim().startsWith('{'))
+      if (!jsonLine) return []
+      const data = JSON.parse(jsonLine) as { messages?: Array<{ role?: string; content?: unknown }> }
+      const msgs = data.messages ?? []
+      const toText = (c: unknown): string => {
+        if (typeof c === 'string') return c
+        if (Array.isArray(c)) return c.map((p) => (typeof p === 'string' ? p : ((p as { text?: string })?.text ?? ''))).join('')
+        return ''
+      }
+      return msgs
+        .filter((m) => m.role === 'user' || m.role === 'assistant')
+        .map((m) => ({ role: m.role === 'user' ? ('user' as const) : ('agent' as const), text: toText(m.content).trim() }))
+        .filter((m) => m.text)
+    } catch {
+      return []
     }
   }
 
@@ -197,13 +256,13 @@ export class HermesManager {
     }
   }
 
-  async run(text: string): Promise<{ runId: string }> {
+  async run(text: string, sessionId?: string): Promise<{ runId: string }> {
     const runId = `r${++this.runSeq}`
     const st = this._status
     if (st.mode === 'simulated' || !st.bin) {
       void this.simulate(runId, text)
     } else {
-      this.runReal(runId, text, st.bin)
+      this.runReal(runId, text, st.bin, sessionId)
     }
     return { runId }
   }
@@ -215,12 +274,14 @@ export class HermesManager {
 
   // ── 真实 Hermes：`hermes chat -q "<text>" -Q [--yolo] [-m model]` ──
 
-  private runReal(runId: string, text: string, bin: string): void {
+  private runReal(runId: string, text: string, bin: string, sessionId?: string): void {
     const stepId = `${runId}-h`
     const model = this.settings.model.trim()
-    this.emit({ type: 'step-start', runId, id: stepId, skill: 'hermes', desc: `chat -q · ${model || 'Hermes 默认模型'}` })
+    const resuming = !!sessionId
+    this.emit({ type: 'step-start', runId, id: stepId, skill: 'hermes', desc: `chat -q · ${model || 'Hermes 默认模型'}${resuming ? ' · 续接会话' : ''}` })
 
     const args = ['chat', '-q', text, '-Q']
+    if (sessionId) args.push('--resume', sessionId)
     if (this.settings.yolo) args.push('--yolo')
     if (model) args.push('-m', model)
 
@@ -236,7 +297,19 @@ export class HermesManager {
     }
 
     this.proc = child
-    child.stdout?.on('data', (d: Buffer) => this.emit({ type: 'output', runId, chunk: d.toString() }))
+    let sessionCaptured = false
+    child.stdout?.on('data', (d: Buffer) => {
+      let s = d.toString()
+      if (!sessionCaptured) {
+        const m = s.match(/session_id:\s*(\S+)/)
+        if (m) {
+          sessionCaptured = true
+          this.emit({ type: 'session', runId, sessionId: m[1] })
+          s = s.replace(/.*session_id:\s*\S+[^\n]*\n?/, '')
+        }
+      }
+      if (s) this.emit({ type: 'output', runId, chunk: s })
+    })
     child.stderr?.on('data', (d: Buffer) => this.emit({ type: 'output', runId, chunk: d.toString() }))
     child.on('error', (e: Error) => this.emit({ type: 'error', runId, message: `Hermes 进程错误：${e.message}` }))
     child.on('close', (code: number | null) => {

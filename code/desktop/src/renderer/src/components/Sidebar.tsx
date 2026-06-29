@@ -1,4 +1,4 @@
-import type { HermesStatus, View } from '../types'
+import type { HermesStatus, SessionItem, View } from '../types'
 
 const MODE_LABEL: Record<HermesStatus['mode'], string> = {
   system: '本机 Hermes（已复用）',
@@ -6,19 +6,17 @@ const MODE_LABEL: Record<HermesStatus['mode'], string> = {
   simulated: '模拟模式 · 开发'
 }
 
-const RECENT = [
-  '把这周飞书文档汇总成 Excel 发给老板',
-  '每天 9 点抓竞品官网更新，发飞书通知',
-  '读未读邮件，把合同 PDF 关键条款汇总成表格'
-]
-
 interface Props {
   status: HermesStatus | null
   view: View
+  sessions: SessionItem[]
+  currentSession: string | null
   onNavigate: (v: View) => void
+  onNewSession: () => void
+  onSelectSession: (id: string) => void
 }
 
-export default function Sidebar({ status, view, onNavigate }: Props): JSX.Element {
+export default function Sidebar({ status, view, sessions, currentSession, onNavigate, onNewSession, onSelectSession }: Props): JSX.Element {
   const label = status ? MODE_LABEL[status.mode] : '连接中…'
   const dotClass = status?.ready ? (status.mode === 'simulated' ? 'warn' : 'ok') : ''
 
@@ -28,14 +26,25 @@ export default function Sidebar({ status, view, onNavigate }: Props): JSX.Elemen
         <div className="brand">
           <span className="logo">N</span> Nova
         </div>
-        <button className="new-task" onClick={() => onNavigate('chat')}>＋ 新建任务</button>
-        <div className="side-label">最近</div>
+        <button className="new-task" onClick={onNewSession}>＋ 新会话</button>
+
+        <div className="side-label">会话</div>
         <ul className="task-list">
-          {RECENT.map((t, i) => (
-            <li key={i} className="task-item" title={t} onClick={() => onNavigate('chat')}>
-              {t}
-            </li>
-          ))}
+          {sessions.length === 0 && <li className="task-empty">暂无会话{status?.mode === 'simulated' ? '（连接 Hermes 后显示）' : ''}</li>}
+          {sessions.map((s) => {
+            const name = s.title || s.preview || s.id
+            return (
+              <li
+                key={s.id}
+                className={`session-item ${currentSession === s.id ? 'active' : ''}`}
+                title={name}
+                onClick={() => onSelectSession(s.id)}
+              >
+                <span className="session-name">{name}</span>
+                {s.lastActive && <span className="session-time">{s.lastActive}</span>}
+              </li>
+            )
+          })}
         </ul>
       </div>
 
@@ -50,10 +59,7 @@ export default function Sidebar({ status, view, onNavigate }: Props): JSX.Elemen
             </span>
           </div>
         </div>
-        <button
-          className={`nav-btn foot ${view === 'settings' ? 'active' : ''}`}
-          onClick={() => onNavigate('settings')}
-        >
+        <button className={`nav-btn foot ${view === 'settings' ? 'active' : ''}`} onClick={() => onNavigate('settings')}>
           ⚙️ 设置
         </button>
       </div>
