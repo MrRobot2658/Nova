@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Msg } from '../types'
+import { Icon } from './Icon'
 
 interface Props {
   messages: Msg[]
@@ -173,21 +174,28 @@ export default function Conversation({ messages, running, workdir, model, onSend
           <div className="composer-toolbar">
             <div className="tools">
               <button className={`tool ${listening ? 'on' : ''}`} onClick={toggleMic} title={listening ? '停止语音输入' : '语音输入'}>
-                {listening ? '●' : '🎤'}
+                <Icon name="mic" size={17} />
               </button>
               <button className="tool folder" onClick={onPickFolder} title={workdir || '选择工作目录'}>
-                📁 <span className="folder-name">{dirName}</span>
+                <Icon name="folder" size={16} />
+                <span className="folder-name">{dirName}</span>
               </button>
-              <button className="tool" onClick={onOpenBrowser} title="打开浏览器">🌐</button>
+              <button className="tool" onClick={onOpenBrowser} title="打开浏览器">
+                <Icon name="globe" size={16} />
+              </button>
               {model && (
                 <span className="tool-model" title="当前模型（在设置里修改）">{model}</span>
               )}
               {voiceErr && <span className="voice-err">{voiceErr}</span>}
             </div>
             {running ? (
-              <button className="send-btn stop" onClick={onCancel} title="停止">■</button>
+              <button className="send-btn stop" onClick={onCancel} title="停止">
+                <Icon name="stop" size={16} />
+              </button>
             ) : (
-              <button className="send-btn" disabled={!text.trim()} onClick={submit} title="发送">↑</button>
+              <button className="send-btn" disabled={!text.trim()} onClick={submit} title="发送">
+                <Icon name="send" size={17} />
+              </button>
             )}
           </div>
         </div>

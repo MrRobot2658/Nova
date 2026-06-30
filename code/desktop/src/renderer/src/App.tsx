@@ -6,6 +6,7 @@ import Browser from './components/Browser'
 import Settings from './components/Settings'
 import type { HermesStatus, Msg, NovaEvent, SessionItem, Step, View } from './types'
 import { execBrowser, setNavHook, type BrowserCommand } from './webviewBridge'
+import { Icon } from './components/Icon'
 
 type RightTab = 'exec' | 'browser'
 
@@ -307,10 +308,10 @@ export default function App(): JSX.Element {
             <div className="splitter" onMouseDown={startDrag} title="拖拽调整宽度" />
             <div className="right-tabs drag">
               <button className={`rtab ${rightTab === 'exec' ? 'active' : ''}`} onClick={() => setRightTab('exec')}>
-                ⚡ 执行{running && <span className="rdot" />}
+                <Icon name="zap" size={15} /> 执行{running && <span className="rdot" />}
               </button>
               <button className={`rtab ${rightTab === 'browser' ? 'active' : ''}`} onClick={() => setRightTab('browser')}>
-                🌐 浏览器
+                <Icon name="globe" size={15} /> 浏览器
               </button>
             </div>
             <div className="right-content">

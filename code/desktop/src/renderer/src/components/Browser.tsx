@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Icon } from './Icon'
 import { setWebview } from '../webviewBridge'
 
 type WebviewEl = HTMLElement & {
@@ -62,10 +63,10 @@ export default function Browser({ url }: { url: string }): JSX.Element {
   return (
     <div className="pane browser-pane">
       <div className="browser-bar">
-        <button className="nav-ico" onClick={() => wv()?.goBack()} title="后退">‹</button>
-        <button className="nav-ico" onClick={() => wv()?.goForward()} title="前进">›</button>
+        <button className="nav-ico" onClick={() => wv()?.goBack()} title="后退"><Icon name="chevronLeft" size={18} /></button>
+        <button className="nav-ico" onClick={() => wv()?.goForward()} title="前进"><Icon name="chevronRight" size={18} /></button>
         <button className="nav-ico" onClick={() => (loading ? wv()?.stop() : wv()?.reload())} title="刷新 / 停止">
-          {loading ? '✕' : '⟳'}
+          <Icon name={loading ? 'x' : 'refresh'} size={16} />
         </button>
         <input
           className="addr"

@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import type { HermesStatus, SessionItem, View } from '../types'
+import { Icon } from './Icon'
 
 const MODE_LABEL: Record<HermesStatus['mode'], string> = {
   system: '本机 Hermes（已复用）',
@@ -48,7 +49,9 @@ export default function Sidebar({ status, view, sessions, currentSession, theme,
         <div className="brand">
           <span className="logo">N</span> Nova
         </div>
-        <button className="new-task" onClick={onNewSession}>＋ 新会话</button>
+        <button className="new-task" onClick={onNewSession}>
+          <Icon name="plus" size={16} /> 新会话
+        </button>
 
         <ul className="task-list">
           {sessions.length === 0 ? (
@@ -89,10 +92,11 @@ export default function Sidebar({ status, view, sessions, currentSession, theme,
           </div>
         </div>
         <button className="nav-btn foot" onClick={onToggleTheme}>
-          {theme === 'dark' ? '☀️ 亮色模式' : '🌙 暗色模式'}
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
+          {theme === 'dark' ? '亮色模式' : '暗色模式'}
         </button>
         <button className={`nav-btn foot ${view === 'settings' ? 'active' : ''}`} onClick={() => onNavigate('settings')}>
-          ⚙️ 设置
+          <Icon name="settings" size={16} /> 设置
         </button>
       </div>
     </aside>
