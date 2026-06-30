@@ -84,6 +84,7 @@ export default function App(): JSX.Element {
   const [running, setRunning] = useState(false)
   const [status, setStatus] = useState<HermesStatus | null>(null)
   const [workdir, setWorkdir] = useState('')
+  const [model, setModel] = useState('')
   const [sessions, setSessions] = useState<SessionItem[]>([])
   const [currentSession, setCurrentSession] = useState<string | null>(null)
   const [rightTab, setRightTab] = useState<RightTab>('exec')
@@ -103,7 +104,12 @@ export default function App(): JSX.Element {
   const autoOpenedRef = useRef(false)
 
   const refreshStatus = (): void => void window.nova.status().then((s) => setStatus(s as HermesStatus))
-  const refreshWorkdir = (): void => void window.nova.getSettings().then((s) => setWorkdir((s as { workdir?: string }).workdir ?? ''))
+  const refreshWorkdir = (): void =>
+    void window.nova.getSettings().then((s) => {
+      const o = s as { workdir?: string; model?: string }
+      setWorkdir(o.workdir ?? '')
+      setModel(o.model ?? '')
+    })
   const refreshSessions = (): void => void window.nova.listSessions().then((s) => setSessions(s as SessionItem[]))
 
   const openUrl = (u: string): void => {
@@ -287,7 +293,16 @@ export default function App(): JSX.Element {
       />
       {view === 'chat' ? (
         <>
-          <Conversation messages={messages} running={running} workdir={workdir} onSend={send} onPickFolder={pickFolder} onCancel={cancel} />
+          <Conversation
+            messages={messages}
+            running={running}
+            workdir={workdir}
+            model={model || 'Hermes 默认'}
+            onSend={send}
+            onPickFolder={pickFolder}
+            onCancel={cancel}
+            onOpenBrowser={() => setRightTab('browser')}
+          />
           <div className="right-col">
             <div className="splitter" onMouseDown={startDrag} title="拖拽调整宽度" />
             <div className="right-tabs drag">

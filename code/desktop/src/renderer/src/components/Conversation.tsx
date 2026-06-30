@@ -5,9 +5,11 @@ interface Props {
   messages: Msg[]
   running: boolean
   workdir: string
+  model: string
   onSend: (text: string) => void
   onPickFolder: () => void
   onCancel: () => void
+  onOpenBrowser: () => void
 }
 
 const EXAMPLES = [
@@ -38,7 +40,7 @@ function TypingDots(): JSX.Element {
   )
 }
 
-export default function Conversation({ messages, running, workdir, onSend, onPickFolder, onCancel }: Props): JSX.Element {
+export default function Conversation({ messages, running, workdir, model, onSend, onPickFolder, onCancel, onOpenBrowser }: Props): JSX.Element {
   const [text, setText] = useState('')
   const [listening, setListening] = useState(false)
   const [voiceErr, setVoiceErr] = useState('')
@@ -155,20 +157,11 @@ export default function Conversation({ messages, running, workdir, onSend, onPic
       </div>
 
       <div className="composer-wrap">
-        <div className="composer-bar">
-          <button className="chip-btn" onClick={onPickFolder} title={workdir || '选择工作目录'}>
-            📁 {dirName}
-          </button>
-          {voiceErr && <span className="voice-err">{voiceErr}</span>}
-        </div>
         <div className="composer-box">
-          <button className={`mic-btn ${listening ? 'on' : ''}`} onClick={toggleMic} title={listening ? '停止语音输入' : '语音输入'}>
-            {listening ? '●' : '🎤'}
-          </button>
           <textarea
             ref={taRef}
             value={text}
-            placeholder="给 Nova 下达任务…（Enter 发送，Shift+Enter 换行）"
+            placeholder="给 Nova 下达任务…（Shift+Enter 换行）"
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -177,15 +170,26 @@ export default function Conversation({ messages, running, workdir, onSend, onPic
               }
             }}
           />
-          {running ? (
-            <button className="send-btn stop" onClick={onCancel} title="停止">
-              ■
-            </button>
-          ) : (
-            <button className="send-btn" disabled={!text.trim()} onClick={submit} title="发送">
-              ↑
-            </button>
-          )}
+          <div className="composer-toolbar">
+            <div className="tools">
+              <button className={`tool ${listening ? 'on' : ''}`} onClick={toggleMic} title={listening ? '停止语音输入' : '语音输入'}>
+                {listening ? '●' : '🎤'}
+              </button>
+              <button className="tool folder" onClick={onPickFolder} title={workdir || '选择工作目录'}>
+                📁 <span className="folder-name">{dirName}</span>
+              </button>
+              <button className="tool" onClick={onOpenBrowser} title="打开浏览器">🌐</button>
+              {model && (
+                <span className="tool-model" title="当前模型（在设置里修改）">{model}</span>
+              )}
+              {voiceErr && <span className="voice-err">{voiceErr}</span>}
+            </div>
+            {running ? (
+              <button className="send-btn stop" onClick={onCancel} title="停止">■</button>
+            ) : (
+              <button className="send-btn" disabled={!text.trim()} onClick={submit} title="发送">↑</button>
+            )}
+          </div>
         </div>
       </div>
     </main>

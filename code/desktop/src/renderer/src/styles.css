@@ -339,27 +339,31 @@ body {
 .dots i:nth-child(3) { animation-delay: .3s; }
 @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: .5; } 40% { transform: translateY(-5px); opacity: 1; } }
 
-/* 现代化输入框容器 */
+/* 现代化输入框容器（上方输入 + 下方工具栏） */
 .composer-box {
-  display: flex; align-items: flex-end; gap: 8px; margin: 8px 24px 20px;
-  background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: 16px; padding: 8px 8px 8px 10px;
+  display: flex; flex-direction: column; gap: 4px; margin: 14px 24px 18px;
+  background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: 16px; padding: 10px 12px 8px;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .composer-box:focus-within { border-color: var(--indigo); box-shadow: 0 0 0 4px rgba(99,102,241,.1); }
 .composer-box textarea {
-  flex: 1; resize: none; border: none; outline: none; background: transparent;
-  font: inherit; line-height: 1.5; padding: 9px 4px; min-height: 24px; max-height: 168px;
+  width: 100%; resize: none; border: none; outline: none; background: transparent; color: var(--ink);
+  font: inherit; line-height: 1.5; padding: 6px 4px; min-height: 26px; max-height: 168px;
 }
-.composer-box .mic-btn {
-  flex: none; width: 36px; height: 36px; min-width: 0; padding: 0; font-size: 15px;
-  border: none; background: var(--hover); border-radius: 10px; color: #334155;
-  display: grid; place-items: center; transition: background .15s ease;
+.composer-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tools { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.tool {
+  -webkit-app-region: no-drag; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  border: none; background: transparent; color: var(--muted); font-size: 14px; padding: 6px 8px; border-radius: 8px;
+  transition: background .15s ease, color .15s ease;
 }
-.composer-box .mic-btn:hover { background: var(--hover-2); }
-.composer-box .mic-btn.on { background: #fef2f2; color: #dc2626; font-size: 12px; animation: pulse 1.2s ease-in-out infinite; }
+.tool:hover { background: var(--hover); color: var(--ink); }
+.tool.on { color: #dc2626; }
+.tool.folder .folder-name { font-size: 12px; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tool-model { font-size: 12px; color: var(--muted); padding: 6px 8px; border-radius: 8px; white-space: nowrap; }
 .send-btn {
-  flex: none; width: 36px; height: 36px; border: none; border-radius: 10px; cursor: pointer;
-  background: var(--indigo); color: #fff; font-size: 18px; font-weight: 700; line-height: 1;
+  flex: none; width: 34px; height: 34px; border: none; border-radius: 10px; cursor: pointer;
+  background: var(--indigo); color: #fff; font-size: 17px; font-weight: 700; line-height: 1;
   display: grid; place-items: center; transition: background .15s ease, transform .1s ease;
 }
 .send-btn:hover:not(:disabled) { background: var(--indigo-dark); }
