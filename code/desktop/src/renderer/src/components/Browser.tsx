@@ -47,6 +47,11 @@ export default function Browser({ url }: { url: string }): JSX.Element {
       setLoading(false)
       setAddr(wv.getURL())
     })
+    // target=_blank / 弹窗 → 在同一 webview 内打开
+    wv.addEventListener('new-window', (e: Event) => {
+      const url = (e as unknown as { url?: string }).url
+      if (url) void wv.loadURL(url).catch(() => undefined)
+    })
   }
 
   useEffect(() => setAddr(url), [url])

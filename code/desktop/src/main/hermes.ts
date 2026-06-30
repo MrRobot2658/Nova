@@ -411,9 +411,9 @@ export class HermesManager {
   }
 
   /** Token 用量指标（解析自 `hermes insights`） */
-  async usageMetrics(): Promise<UsageMetric[]> {
+  async usageMetrics(days = 30): Promise<UsageMetric[]> {
     if (!this.connected) return []
-    const out = this.query(['insights', '--days', '30'], 15000)
+    const out = this.query(['insights', '--days', String(days)], 15000)
     if (!out) return []
     const metrics: UsageMetric[] = []
     const add = (label: string, re: RegExp): void => {

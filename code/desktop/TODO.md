@@ -1,30 +1,22 @@
 # Nova 桌面端 — TODO
 
-打包阶段先做最小可用版（本地未签名 .dmg，运行时复用本机 Hermes）。以下细节延后：
-
 ## 打包 / 分发
-- [ ] **内置 Hermes 到安装包**：先把 Hermes 源码以 submodule vendoring 到 `code/hermes/`，产出可分发运行时，再在 `electron-builder.yml` 启用 `extraResources`（`hermes/`）。当前依赖「检测优先」复用本机 Hermes。
-- [x] **应用图标**：`build/icon.icns`（从 `icon.png` 生成）已就位，打包后 .app 使用该图标。（DMG 背景图 / win .ico 可后补）
-- [ ] **签名与公证**：macOS code signing + notarization；移除 `mac.identity: null`。
-- [ ] **Windows 构建**：NSIS 安装器；若 Hermes 无原生构建，走 WSL2 承载（沿用 `scripts/install-windows.ps1`）。
+- [~] **内置 Hermes 到安装包**：结构+文档已就位（`code/hermes/README.md`，extraResources 注释待启用）。**阻塞**：缺 Hermes 源码/可分发运行时，给到来源即可落地。当前靠「检测优先」复用本机 Hermes。
+- [x] **应用图标**：`build/icon.icns`（从 `icon.png` 生成），打包后 .app 使用该图标。
+- [x] **签名与公证**：entitlements + hardenedRuntime 配置 + `dist:signed` 脚本 + `DISTRIBUTION.md` 就位。**需 Apple Developer 证书**才能真正签名公证（无证书用 `dist:unsigned`）。
+- [x] **OTA 自动更新**：electron-updater（GitHub Releases）；设置→关于：显示版本、检查更新、下载、重启安装。macOS 自动安装需签名。
+- [ ] **Windows 构建**：NSIS 安装器（**需 Windows 工具链/CI**）；Hermes 无原生构建时走 WSL2。
 - [ ] **universal 包**：arm64 + x64（目前仅 arm64）。
 
 ## 功能增强
-- [x] **浏览器模拟 Chrome**：webview 用纯 Chrome UA（去掉 Electron/Nova 标识），避免小红书等站点按非标准浏览器拦截。
-- [x] **浏览器自动化桥**：主进程开本机 HTTP 控制服务（端口写入 `~/.nova/bridge.json`，并通过
-  环境变量 `NOVA_BROWSER_BRIDGE` 传给 Hermes 子进程）。技能用 `POST $NOVA_BROWSER_BRIDGE/browser`
-  驱动右侧 webview：`navigate` / `text` / `html` / `info` / `eval`(js) / `scrollBottom` / `screenshot`。
-  实现见 `src/main/bridge.ts` + `src/renderer/src/webviewBridge.ts`。
-- [x] **browser-act skill**：已做成真正的 Hermes skill（`code/skills/browser-act/`，含 SKILL.md +
-  scripts/browser-act.sh），驱动内置浏览器桥；`install.sh` 会把 `code/skills/*` 同步到 `~/.hermes/skills/`。
-- [x] **china-web-data-collection skill**：`code/skills/china-web-data-collection/`（SKILL.md +
-  scripts/collect.sh + references/sites.md 分站点配方），国内站点反爬采集，限速滚动 + 抽取，已注册+实测。
-- [ ] **wenshu-api-crawl 等其余采集 skill**：同样基于浏览器桥落地。
-- [ ] **应用级代理**：webview 走代理需 `session.setProxy`（读 .env 的 HTTPS_PROXY/ALL_PROXY），当前依赖系统代理。
-- [ ] **桥安全**：当前 localhost 无鉴权，后续加 token（写入 bridge.json，请求头校验）。
-- [ ] **迷你浏览器**：`target=_blank` 弹窗在同一 webview 内打开；多标签页。
-- [ ] **真实语音 STT**：Web Speech API 在 Electron 不稳定，改为录音 + ASR endpoint（需指定服务）。
-- [ ] **会话项操作**：hover 重命名 / 删除（`hermes sessions rename` / `delete`）。
-- [ ] **执行面板**：把 Hermes 工具调用解析成结构化时间线（需 Hermes 结构化事件输出，目前真实模式是单条 hermes 步骤 + 流式文本）。
-- [ ] **用量**：insights 数字已解析成卡片，可加趋势图 / 按天。
-- [ ] **MCP**：`mcp add` 的发现式安装可能需要交互参数，按真实交互完善表单。
+- [x] **浏览器模拟 Chrome**：纯 Chrome UA。
+- [x] **浏览器自动化桥**：本机 HTTP 控制服务驱动 webview（navigate/text/html/info/eval/scroll/screenshot）。
+- [x] **桥安全**：token 鉴权（写入 `~/.nova/bridge.json` + `NOVA_BROWSER_BRIDGE_TOKEN`，请求需 `x-nova-token`），已实测 401/200。
+- [x] **browser-act skill** / **china-web-data-collection skill** / **wenshu-api-crawl skill**：均做成真正的 Hermes skill，走浏览器桥。
+- [x] **应用级代理**：主进程读 `.env`/env 的 `HTTPS_PROXY/ALL_PROXY`，`session.setProxy` 作用到 webview 分区。
+- [x] **会话项操作**：hover 重命名（内联编辑）/ 删除（`hermes sessions rename/delete`）。
+- [x] **用量按天**：用量页支持 近 7/30/90 天 切换（`hermes insights --days`）。
+- [~] **迷你浏览器**：`target=_blank` 弹窗已在同一 webview 内打开；**多标签页**待做。
+- [ ] **真实语音 STT**：Web Speech 在 Electron 不稳，改录音 + ASR endpoint（**需指定转写服务**）。
+- [ ] **执行面板结构化时间线**：需 Hermes **ACP**（编辑器集成的 JSON-RPC 协议）输出结构化工具事件；属较大独立集成。当前真实模式为单条 hermes 步骤 + 流式文本。
+- [ ] **MCP 表单**：`mcp add` 发现式安装的交互参数完善。

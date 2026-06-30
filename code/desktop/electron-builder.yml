@@ -16,9 +16,17 @@ npmRebuild: false
 #   - from: ../hermes/dist
 #     to: hermes
 
+# OTA 更新源（GitHub Releases）
+publish:
+  provider: github
+  owner: MrRobot2658
+  repo: Nova
+
 mac:
   target:
     - target: dmg
+      arch: arm64
+    - target: zip # Squirrel.Mac 自动更新需要 zip + latest-mac.yml
       arch: arm64
   category: public.app-category.productivity
   hardenedRuntime: true

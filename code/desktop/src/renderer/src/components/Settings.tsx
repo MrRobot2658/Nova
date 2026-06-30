@@ -4,6 +4,7 @@ import General from './settings/General'
 import Skills from './settings/Skills'
 import Mcp from './settings/Mcp'
 import Usage from './settings/Usage'
+import About from './settings/About'
 import { Icon } from './Icon'
 
 const TABS = [
@@ -11,7 +12,8 @@ const TABS = [
   { key: 'general', label: '通用', icon: 'settings' },
   { key: 'skills', label: 'Skill', icon: 'puzzle' },
   { key: 'mcp', label: 'MCP', icon: 'link' },
-  { key: 'usage', label: '用量', icon: 'chart' }
+  { key: 'usage', label: '用量', icon: 'chart' },
+  { key: 'about', label: '关于', icon: 'info' }
 ] as const
 
 type TabKey = (typeof TABS)[number]['key']
@@ -36,6 +38,7 @@ export default function Settings({ onChanged }: { onChanged: () => void }): JSX.
         {tab === 'skills' && <Skills />}
         {tab === 'mcp' && <Mcp />}
         {tab === 'usage' && <Usage />}
+        {tab === 'about' && <About />}
       </div>
     </main>
   )

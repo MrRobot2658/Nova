@@ -19,7 +19,7 @@ declare global {
       listMcp(): Promise<unknown>
       addMcp(input: Record<string, unknown>): Promise<unknown>
       removeMcp(name: string): Promise<unknown>
-      usageMetrics(): Promise<unknown>
+      usageMetrics(days?: number): Promise<unknown>
       getSettings(): Promise<unknown>
       setSettings(patch: Record<string, unknown>): Promise<unknown>
       selectFolder(): Promise<string | null>
@@ -27,6 +27,11 @@ declare global {
       onEvent(cb: (evt: unknown) => void): () => void
       onBrowserCommand(cb: (cmd: { id: number; action: string; [k: string]: unknown }) => void): () => void
       browserResult(id: number, result: unknown): void
+      getVersion(): Promise<string>
+      checkUpdate(): Promise<unknown>
+      downloadUpdate(): Promise<unknown>
+      installUpdate(): void
+      onUpdateEvent(cb: (evt: { type: string; payload?: unknown }) => void): () => void
     }
   }
 }

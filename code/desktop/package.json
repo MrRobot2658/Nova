@@ -5,6 +5,9 @@
   "main": "./out/main/index.js",
   "author": "Nova",
   "license": "UNLICENSED",
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",

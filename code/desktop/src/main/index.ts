@@ -1,7 +1,29 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, session } from 'electron'
 import { join } from 'path'
+import { existsSync, readFileSync } from 'fs'
 import { HermesManager } from './hermes'
 import { startBridge, resolveBrowserResult } from './bridge'
+import { setupUpdater } from './updater'
+
+/** 应用级代理：读 env / 仓库 .env 的代理，作用到 webview 分区会话 */
+function applyProxy(): void {
+  let rule = process.env.ALL_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
+  if (!rule) {
+    for (const f of [join(process.cwd(), '.env'), join(process.cwd(), '..', '..', '.env')]) {
+      try {
+        if (!existsSync(f)) continue
+        const m = readFileSync(f, 'utf8').match(/^\s*(?:ALL_PROXY|HTTPS_PROXY|HTTP_PROXY)\s*=\s*(.+?)\s*$/im)
+        if (m) {
+          rule = m[1].trim()
+          break
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }
+  if (rule) void session.fromPartition('persist:nova').setProxy({ proxyRules: rule }).catch(() => undefined)
+}
 
 let mainWindow: BrowserWindow | null = null
 const hermes = new HermesManager()
@@ -70,7 +92,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('mcp:list', () => hermes.listMcp())
   ipcMain.handle('mcp:add', (_event, input) => hermes.addMcp(input))
   ipcMain.handle('mcp:remove', (_event, name: string) => hermes.removeMcp(name))
-  ipcMain.handle('usage:metrics', () => hermes.usageMetrics())
+  ipcMain.handle('usage:metrics', (_event, days?: number) => hermes.usageMetrics(days))
   ipcMain.handle('file:resolve', (_event, keyword: string) => hermes.resolveFile(keyword))
 
   // 选择工作目录
@@ -79,9 +101,15 @@ app.whenReady().then(async () => {
     return r.canceled || r.filePaths.length === 0 ? null : r.filePaths[0]
   })
 
+  // 应用级代理（webview 走 .env 里的 HTTPS_PROXY/ALL_PROXY）
+  applyProxy()
+
   // 浏览器自动化桥：HTTP 控制服务 ↔ 渲染层 webview
   startBridge(() => mainWindow)
   ipcMain.on('browser:result', (_event, id: number, result: unknown) => resolveBrowserResult(id, result))
+
+  // OTA 自动更新
+  setupUpdater(() => mainWindow)
 
   createWindow()
 

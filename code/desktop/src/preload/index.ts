@@ -30,8 +30,8 @@ const api = {
   listMcp: (): Promise<unknown> => ipcRenderer.invoke('mcp:list'),
   addMcp: (input: Record<string, unknown>): Promise<unknown> => ipcRenderer.invoke('mcp:add', input),
   removeMcp: (name: string): Promise<unknown> => ipcRenderer.invoke('mcp:remove', name),
-  /** 用量指标 */
-  usageMetrics: (): Promise<unknown> => ipcRenderer.invoke('usage:metrics'),
+  /** 用量指标（可指定天数范围） */
+  usageMetrics: (days?: number): Promise<unknown> => ipcRenderer.invoke('usage:metrics', days),
   /** 读取设置 */
   getSettings: (): Promise<unknown> => ipcRenderer.invoke('settings:get'),
   /** 写入设置（部分字段） */
@@ -53,7 +53,23 @@ const api = {
     return () => ipcRenderer.removeListener('browser:command', listener)
   },
   /** 回传指令执行结果 */
-  browserResult: (id: number, result: unknown): void => ipcRenderer.send('browser:result', id, result)
+  browserResult: (id: number, result: unknown): void => ipcRenderer.send('browser:result', id, result),
+  /** 当前版本 */
+  getVersion: (): Promise<string> => ipcRenderer.invoke('app:version'),
+  /** 检查更新 */
+  checkUpdate: (): Promise<unknown> => ipcRenderer.invoke('update:check'),
+  /** 下载更新 */
+  downloadUpdate: (): Promise<unknown> => ipcRenderer.invoke('update:download'),
+  /** 重启并安装更新 */
+  installUpdate: (): void => {
+    void ipcRenderer.invoke('update:install')
+  },
+  /** 订阅更新事件 */
+  onUpdateEvent: (cb: (evt: { type: string; payload?: unknown }) => void): (() => void) => {
+    const listener = (_e: unknown, evt: { type: string; payload?: unknown }): void => cb(evt)
+    ipcRenderer.on('update:event', listener)
+    return () => ipcRenderer.removeListener('update:event', listener)
+  }
 }
 
 contextBridge.exposeInMainWorld('nova', api)
