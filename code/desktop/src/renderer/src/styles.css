@@ -87,8 +87,7 @@ body {
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 18px; letter-spacing: -.02em; padding: 0 6px 14px; }
 .brand .logo {
   width: 26px; height: 26px; border-radius: 8px; -webkit-app-region: no-drag;
-  background: linear-gradient(135deg, var(--indigo), var(--emerald));
-  display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 14px;
+  object-fit: cover; display: block;
 }
 .new-task {
   -webkit-app-region: no-drag;
@@ -302,10 +301,9 @@ body {
 /* ── 对话细节打磨 ── */
 .empty { max-width: 460px; }
 .empty-logo {
-  width: 52px; height: 52px; border-radius: 15px; margin: 0 auto 18px;
-  display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 24px;
-  background: linear-gradient(135deg, var(--indigo), var(--emerald));
-  box-shadow: 0 10px 30px rgba(99,102,241,.3);
+  width: 56px; height: 56px; border-radius: 16px; margin: 0 auto 18px;
+  object-fit: cover; display: block;
+  box-shadow: 0 10px 30px rgba(99,102,241,.25);
 }
 .examples { display: flex; flex-direction: column; gap: 10px; margin: 26px auto 0; width: 100%; }
 .example {

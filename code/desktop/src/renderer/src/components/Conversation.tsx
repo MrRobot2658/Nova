@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Msg } from '../types'
 import { Icon } from './Icon'
+import logo from '../assets/logo.png'
 
 interface Props {
   messages: Msg[]
@@ -121,7 +122,7 @@ export default function Conversation({ messages, running, workdir, model, onSend
       <div className="messages">
         {messages.length === 0 && (
           <div className="empty">
-            <div className="empty-logo">N</div>
+            <img className="empty-logo" src={logo} alt="Nova" />
             <h2>你想让 Nova 帮你做什么？</h2>
             <p>用一句话描述目标，Nova 会自动拆解成多步流程并执行。</p>
             <div className="examples">

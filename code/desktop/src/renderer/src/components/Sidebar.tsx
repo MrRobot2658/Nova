@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 import type { HermesStatus, SessionItem, View } from '../types'
 import { Icon } from './Icon'
+import logo from '../assets/logo.png'
 
 const MODE_LABEL: Record<HermesStatus['mode'], string> = {
   system: '本机 Hermes（已复用）',
@@ -47,7 +48,7 @@ export default function Sidebar({ status, view, sessions, currentSession, theme,
     <aside className="sidebar">
       <div className="sidebar-top">
         <div className="brand">
-          <span className="logo">N</span> Nova
+          <img className="logo" src={logo} alt="Nova" /> Nova
         </div>
         <button className="new-task" onClick={onNewSession}>
           <Icon name="plus" size={16} /> 新会话
