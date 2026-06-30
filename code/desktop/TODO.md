@@ -4,7 +4,7 @@
 
 ## 打包 / 分发
 - [ ] **内置 Hermes 到安装包**：先把 Hermes 源码以 submodule vendoring 到 `code/hermes/`，产出可分发运行时，再在 `electron-builder.yml` 启用 `extraResources`（`hermes/`）。当前依赖「检测优先」复用本机 Hermes。
-- [ ] **应用图标**：`build/icon.icns`（mac）/ `build/icon.ico`（win）+ DMG 背景图。
+- [x] **应用图标**：`build/icon.icns`（从 `icon.png` 生成）已就位，打包后 .app 使用该图标。（DMG 背景图 / win .ico 可后补）
 - [ ] **签名与公证**：macOS code signing + notarization；移除 `mac.identity: null`。
 - [ ] **Windows 构建**：NSIS 安装器；若 Hermes 无原生构建，走 WSL2 承载（沿用 `scripts/install-windows.ps1`）。
 - [ ] **universal 包**：arm64 + x64（目前仅 arm64）。
