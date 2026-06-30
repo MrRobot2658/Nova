@@ -10,6 +10,10 @@ const api = {
   listSessions: (): Promise<unknown> => ipcRenderer.invoke('sessions:list'),
   /** 加载某会话历史 */
   loadSession: (id: string): Promise<unknown> => ipcRenderer.invoke('session:load', id),
+  /** 重命名会话 */
+  renameSession: (id: string, title: string): Promise<unknown> => ipcRenderer.invoke('session:rename', id, title),
+  /** 删除会话 */
+  deleteSession: (id: string): Promise<unknown> => ipcRenderer.invoke('session:delete', id),
   /** 查询 Hermes 运行状态 */
   status: (): Promise<unknown> => ipcRenderer.invoke('hermes:status'),
   /** 测试 Hermes 连接 */

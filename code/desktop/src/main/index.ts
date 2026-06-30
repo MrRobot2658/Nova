@@ -60,6 +60,8 @@ app.whenReady().then(async () => {
   ipcMain.handle('nova:cancel', () => hermes.cancel())
   ipcMain.handle('sessions:list', () => hermes.listSessions())
   ipcMain.handle('session:load', (_event, id: string) => hermes.loadSession(id))
+  ipcMain.handle('session:rename', (_event, id: string, title: string) => hermes.renameSession(id, title))
+  ipcMain.handle('session:delete', (_event, id: string) => hermes.deleteSession(id))
 
   ipcMain.handle('profiles:list', () => hermes.listProfiles())
   ipcMain.handle('skills:list', () => hermes.listSkills())

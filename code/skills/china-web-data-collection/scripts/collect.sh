@@ -4,14 +4,18 @@
 set -euo pipefail
 
 bridge="${NOVA_BROWSER_BRIDGE:-}"
-if [ -z "$bridge" ] && [ -f "$HOME/.nova/bridge.json" ]; then
-  port="$(grep -o '"port"[^0-9]*[0-9]\+' "$HOME/.nova/bridge.json" | grep -o '[0-9]\+' | head -1)"
-  [ -n "$port" ] && bridge="http://127.0.0.1:$port"
+token="${NOVA_BROWSER_BRIDGE_TOKEN:-}"
+if [ -f "$HOME/.nova/bridge.json" ]; then
+  if [ -z "$bridge" ]; then
+    port="$(grep -o '"port"[^0-9]*[0-9]\+' "$HOME/.nova/bridge.json" | grep -o '[0-9]\+' | head -1)"
+    [ -n "$port" ] && bridge="http://127.0.0.1:$port"
+  fi
+  [ -z "$token" ] && token="$(grep -o '"token"[^"]*"[^"]*"' "$HOME/.nova/bridge.json" | sed -E 's/.*"token"[^"]*"([^"]*)".*/\1/')"
 fi
 [ -z "$bridge" ] && { echo '{"ok":false,"error":"Nova 浏览器桥未运行：请先启动 Nova 桌面端"}'; exit 1; }
 
 json_str() { python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"; }
-post() { curl -s -X POST "$bridge/browser" -H 'content-type: application/json' -d "$1"; }
+post() { curl -s -X POST "$bridge/browser" -H 'content-type: application/json' -H "x-nova-token: $token" -d "$1"; }
 
 url="${1:?需要 url}"
 scrolls="${2:-5}"

@@ -276,6 +276,15 @@ export class HermesManager {
     return null
   }
 
+  async renameSession(id: string, title: string): Promise<ActionResult> {
+    if (!title.trim()) return { ok: false, message: '标题不能为空' }
+    return this.action(['sessions', 'rename', id, title.trim()], 15000)
+  }
+
+  async deleteSession(id: string): Promise<ActionResult> {
+    return this.action(['sessions', 'delete', '--yes', id], 15000)
+  }
+
   async test(): Promise<TestResult> {
     const st = this.refresh()
     if (st.mode === 'simulated' || !st.bin) {

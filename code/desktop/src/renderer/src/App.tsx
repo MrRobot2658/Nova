@@ -269,6 +269,17 @@ export default function App(): JSX.Element {
     setView('chat')
   }
 
+  const renameSession = (id: string, title: string): void => {
+    void window.nova.renameSession(id, title).then(() => refreshSessions())
+  }
+
+  const deleteSession = (id: string): void => {
+    void window.nova.deleteSession(id).then(() => {
+      if (sessionRef.current === id) newSession()
+      refreshSessions()
+    })
+  }
+
   const selectSession = async (id: string): Promise<void> => {
     sessionRef.current = id
     setCurrentSession(id)
@@ -291,6 +302,8 @@ export default function App(): JSX.Element {
         onNewSession={newSession}
         onSelectSession={selectSession}
         onToggleTheme={toggleTheme}
+        onRenameSession={renameSession}
+        onDeleteSession={deleteSession}
       />
       {view === 'chat' ? (
         <>

@@ -1,4 +1,5 @@
 import http from 'http'
+import { randomBytes } from 'crypto'
 import type { BrowserWindow } from 'electron'
 import { mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
@@ -20,6 +21,7 @@ let server: http.Server | null = null
 let getWin: () => BrowserWindow | null = () => null
 let seq = 0
 let activePort = 0
+let token = ''
 const pending = new Map<number, (result: unknown) => void>()
 
 /** 渲染层执行完毕后回传结果 */
@@ -53,10 +55,11 @@ function runCommand(cmd: Record<string, unknown>, timeoutMs = 30000): Promise<un
 function finalize(port: number): void {
   activePort = port
   process.env.NOVA_BROWSER_BRIDGE = `http://127.0.0.1:${port}`
+  process.env.NOVA_BROWSER_BRIDGE_TOKEN = token
   try {
     const dir = join(homedir(), '.nova')
     mkdirSync(dir, { recursive: true })
-    writeFileSync(join(dir, 'bridge.json'), JSON.stringify({ port, url: `http://127.0.0.1:${port}` }, null, 2))
+    writeFileSync(join(dir, 'bridge.json'), JSON.stringify({ port, url: `http://127.0.0.1:${port}`, token }, null, 2))
   } catch {
     // 忽略写入失败
   }
@@ -64,12 +67,16 @@ function finalize(port: number): void {
 
 export function startBridge(getWindow: () => BrowserWindow | null): void {
   getWin = getWindow
+  token = randomBytes(24).toString('hex')
   server = http.createServer((req, res) => {
     const send = (code: number, body: unknown): void => {
       res.writeHead(code, { 'content-type': 'application/json' })
       res.end(JSON.stringify(body))
     }
     if (req.method === 'GET' && req.url === '/health') return send(200, { ok: true, port: activePort })
+    // 鉴权：仅本机 + token（写在 ~/.nova/bridge.json）
+    const provided = (req.headers['x-nova-token'] as string) || (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '')
+    if (provided !== token) return send(401, { ok: false, error: 'unauthorized' })
     if (req.method === 'POST' && req.url === '/browser') {
       let body = ''
       req.on('data', (c) => (body += c))

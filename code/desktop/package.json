@@ -10,7 +10,9 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "dist": "electron-vite build && electron-builder"
+    "dist": "electron-vite build && electron-builder",
+    "dist:unsigned": "electron-vite build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "dist:signed": "electron-vite build && electron-builder --config.mac.notarize=true"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

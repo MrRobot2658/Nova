@@ -21,7 +21,12 @@ mac:
     - target: dmg
       arch: arm64
   category: public.app-category.productivity
-  identity: null # 本地未签名构建（分发前再补签名/公证）
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  # 本地未签名：用 `npm run dist:unsigned`（CSC_IDENTITY_AUTO_DISCOVERY=false）
+  # 签名+公证：配好证书与 APPLE_* 环境变量后用 `npm run dist:signed`（见 DISTRIBUTION.md）
 
 dmg:
   title: Nova ${version}

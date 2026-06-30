@@ -7,6 +7,8 @@ declare global {
       cancel(): Promise<void>
       listSessions(): Promise<unknown>
       loadSession(id: string): Promise<unknown>
+      renameSession(id: string, title: string): Promise<unknown>
+      deleteSession(id: string): Promise<unknown>
       status(): Promise<unknown>
       test(): Promise<unknown>
       info(): Promise<unknown>

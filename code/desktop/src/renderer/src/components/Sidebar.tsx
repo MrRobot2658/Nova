@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import type { HermesStatus, SessionItem, View } from '../types'
 import { Icon } from './Icon'
 import logo from '../assets/logo.png'
@@ -36,11 +36,24 @@ interface Props {
   onNewSession: () => void
   onSelectSession: (id: string) => void
   onToggleTheme: () => void
+  onRenameSession: (id: string, title: string) => void
+  onDeleteSession: (id: string) => void
 }
 
-export default function Sidebar({ status, view, sessions, currentSession, theme, onNavigate, onNewSession, onSelectSession, onToggleTheme }: Props): JSX.Element {
+export default function Sidebar({ status, view, sessions, currentSession, theme, onNavigate, onNewSession, onSelectSession, onToggleTheme, onRenameSession, onDeleteSession }: Props): JSX.Element {
   const label = status ? MODE_LABEL[status.mode] : '连接中…'
   const dotClass = status?.ready ? (status.mode === 'simulated' ? 'warn' : 'ok') : ''
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editValue, setEditValue] = useState('')
+
+  const startRename = (id: string, name: string): void => {
+    setEditingId(id)
+    setEditValue(name)
+  }
+  const commitRename = (): void => {
+    if (editingId && editValue.trim()) onRenameSession(editingId, editValue.trim())
+    setEditingId(null)
+  }
 
   const grouped = GROUP_ORDER.map((g) => ({ g, items: sessions.filter((s) => groupOf(s.id) === g) })).filter((x) => x.items.length)
 
@@ -63,6 +76,23 @@ export default function Sidebar({ status, view, sessions, currentSession, theme,
                 <li className="session-group">{g}</li>
                 {items.map((s) => {
                   const name = s.title || s.preview || s.id
+                  if (editingId === s.id) {
+                    return (
+                      <li key={s.id} className="session-item editing">
+                        <input
+                          className="session-edit"
+                          autoFocus
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') commitRename()
+                            if (e.key === 'Escape') setEditingId(null)
+                          }}
+                          onBlur={commitRename}
+                        />
+                      </li>
+                    )
+                  }
                   return (
                     <li
                       key={s.id}
@@ -72,6 +102,20 @@ export default function Sidebar({ status, view, sessions, currentSession, theme,
                     >
                       <span className="session-name">{name}</span>
                       {s.lastActive && <span className="session-time">{s.lastActive}</span>}
+                      <span className="session-actions" onClick={(e) => e.stopPropagation()}>
+                        <button className="sa-btn" title="重命名" onClick={() => startRename(s.id, name)}>
+                          <Icon name="edit" size={13} />
+                        </button>
+                        <button
+                          className="sa-btn"
+                          title="删除"
+                          onClick={() => {
+                            if (window.confirm('删除该会话？')) onDeleteSession(s.id)
+                          }}
+                        >
+                          <Icon name="trash" size={13} />
+                        </button>
+                      </span>
                     </li>
                   )
                 })}

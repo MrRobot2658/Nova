@@ -37,11 +37,15 @@ metadata:
 
 ### 直接用 curl
 
+桥需要 token 鉴权（`~/.nova/bridge.json` 里的 `token`，也通过环境变量 `NOVA_BROWSER_BRIDGE_TOKEN` 传入）：
+
 ```bash
-B="$NOVA_BROWSER_BRIDGE"   # 或 http://127.0.0.1:$(grep -o '[0-9]\+' ~/.nova/bridge.json | head -1)
-curl -s -X POST "$B/browser" -d '{"action":"navigate","url":"https://www.xiaohongshu.com"}'
-curl -s -X POST "$B/browser" -d '{"action":"text"}'
+B="$NOVA_BROWSER_BRIDGE"
+T="$NOVA_BROWSER_BRIDGE_TOKEN"
+curl -s -X POST "$B/browser" -H "x-nova-token: $T" -d '{"action":"navigate","url":"https://www.xiaohongshu.com"}'
+curl -s -X POST "$B/browser" -H "x-nova-token: $T" -d '{"action":"text"}'
 ```
+（封装脚本 `scripts/browser-act.sh` 会自动读取并携带 token。）
 
 ### 或用封装脚本
 

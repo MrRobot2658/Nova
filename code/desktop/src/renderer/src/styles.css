@@ -205,8 +205,14 @@ body {
 /* 会话列表项 */
 .session-item {
   -webkit-app-region: no-drag; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
-  padding: 8px 10px; border-radius: 8px; margin-bottom: 2px;
+  padding: 8px 10px; border-radius: 8px; margin-bottom: 2px; position: relative;
 }
+.session-actions { position: absolute; top: 6px; right: 6px; display: none; gap: 2px; }
+.session-item:hover .session-actions { display: flex; }
+.sa-btn { -webkit-app-region: no-drag; cursor: pointer; border: none; background: var(--panel-2); color: var(--muted); border-radius: 6px; padding: 3px; display: grid; place-items: center; }
+.sa-btn:hover { color: var(--ink); background: var(--hover-2); }
+.session-edit { width: 100%; font: inherit; font-size: 13px; padding: 4px 6px; border: 1px solid var(--indigo); border-radius: 6px; outline: none; background: var(--panel); color: var(--ink); }
+.session-item.editing { padding: 4px 8px; }
 .session-item:hover { background: var(--hover); }
 .session-item.active { background: rgba(99,102,241,.1); }
 .session-name { font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
