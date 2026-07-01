@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { NovaSettings, ProfileRow } from '../../types'
 
-const EMPTY: NovaSettings = { hermesPath: '', profile: '', model: '', yolo: true, workdir: '' }
+const EMPTY: NovaSettings = { hermesPath: '', profile: '', model: '', yolo: true, workdir: '', useAcp: false }
 
 export default function General({ onChanged }: { onChanged: () => void }): JSX.Element {
   const [s, setS] = useState<NovaSettings>(EMPTY)
@@ -59,6 +59,10 @@ export default function General({ onChanged }: { onChanged: () => void }): JSX.E
         <label className="check">
           <input type="checkbox" checked={s.yolo} onChange={(e) => up({ yolo: e.target.checked })} />
           <span>自动批准工具调用（<code>--yolo</code>）—— 非交互执行避免卡在审批</span>
+        </label>
+        <label className="check">
+          <input type="checkbox" checked={s.useAcp} onChange={(e) => up({ useAcp: e.target.checked })} />
+          <span>ACP 模式（实验）—— 走 <code>hermes acp</code>，右侧显示结构化工具调用时间线；会话不整合侧栏列表</span>
         </label>
       </section>
 

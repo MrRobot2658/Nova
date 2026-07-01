@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
 import { loadSettings, saveSettings, type NovaSettings } from './settings'
+import { AcpRunner } from './acp'
 
 /** Hermes 运行模式 */
 export type HermesMode = 'system' | 'bundled' | 'simulated'
@@ -101,6 +102,7 @@ const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms
  */
 export class HermesManager {
   private proc: ChildProcess | null = null
+  private acp: AcpRunner | null = null
   private emit: (evt: NovaEvent) => void = () => {}
   private runSeq = 0
   private cancelled = false
@@ -435,6 +437,8 @@ export class HermesManager {
     this.cancelled = true
     this.proc?.kill()
     this.proc = null
+    this.acp?.cancel()
+    this.acp = null
   }
 
   async run(text: string, sessionId?: string): Promise<{ runId: string }> {
@@ -457,6 +461,26 @@ export class HermesManager {
   // ── 真实 Hermes：`hermes chat -q "<text>" -Q [--yolo] [-m model]` ──
 
   private runReal(runId: string, text: string, bin: string, sessionId?: string): void {
+    const cwd = this.settings.workdir?.trim() || homedir()
+    const env = { ...process.env, ...this.devEnv(), NO_COLOR: '1' }
+
+    // ACP 模式：结构化执行时间线（实验）
+    if (this.settings.useAcp) {
+      this.acp = new AcpRunner({
+        onIntent: (t) => this.emit({ type: 'intent', runId, text, intent: t }),
+        onStepStart: (id, skill, desc) => this.emit({ type: 'step-start', runId, id: `${runId}-${id}`, skill, desc }),
+        onStepDone: (id, ok) => this.emit({ type: 'step-done', runId, id: `${runId}-${id}`, ok }),
+        onOutput: (chunk) => this.emit({ type: 'output', runId, chunk }),
+        onError: (message) => this.emit({ type: 'error', runId, message }),
+        onDone: () => {
+          this.acp = null
+          this.emit({ type: 'done', runId })
+        }
+      })
+      void this.acp.run(bin, text, cwd, env)
+      return
+    }
+
     const stepId = `${runId}-h`
     const model = this.settings.model.trim()
     const resuming = !!sessionId
@@ -467,10 +491,9 @@ export class HermesManager {
     if (this.settings.yolo) args.push('--yolo')
     if (model) args.push('-m', model)
 
-    const cwd = this.settings.workdir?.trim() || homedir()
     let child: ChildProcess
     try {
-      child = spawn(bin, args, { cwd, env: { ...process.env, ...this.devEnv(), NO_COLOR: '1' } })
+      child = spawn(bin, args, { cwd, env })
     } catch (e) {
       this.emit({ type: 'step-done', runId, id: stepId, ok: false })
       this.emit({ type: 'error', runId, message: `启动 Hermes 失败：${(e as Error).message}` })

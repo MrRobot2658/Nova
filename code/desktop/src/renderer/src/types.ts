@@ -70,6 +70,7 @@ export interface NovaSettings {
   model: string
   yolo: boolean
   workdir: string
+  useAcp: boolean
 }
 
 export interface SessionItem {

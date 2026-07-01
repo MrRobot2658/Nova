@@ -28,7 +28,25 @@ extraResources:
 
 桌面端会从 `process.resourcesPath/hermes/bin/hermes` 找到并启动它（`hermes.ts` 的 `bundledBin()`）。
 
-## 阻塞点
+## 源码来源（已确认）
 
-- 需要 Hermes 的**源码仓库地址**或**官方可分发运行时**。给到来源后即可落地（submodule + 构建脚本 + 启用 extraResources）。
-- 二次开发点（devops profile、Skill 注册、DeepSeek 模型路由、与桌面端 localhost 通信）见 `docs/开发文档.md` §1.5。
+- Hermes 源码仓库：**`git@github.com:NousResearch/hermes-agent.git`**（本机已检出 v0.16.0，位于 `~/.hermes/hermes-agent`，含 `acp_adapter/`、`cli.py`、`agent/` 等）。
+- 二开可以此为上游做 submodule/subtree + patch。二开点见 `docs/开发文档.md` §1.5。
+
+## 构建运行时
+
+```bash
+bash code/hermes/build-runtime.sh   # 从本机源码用 PyInstaller 产出 dist/hermes/bin/hermes
+```
+
+产出后在 `code/desktop/electron-builder.yml` 启用 `extraResources`（`../hermes/dist` → `hermes`），桌面端会从
+`process.resourcesPath/hermes/bin/hermes` 启动内置版。
+
+## 剩余工程点（#2 的真正难点）
+
+源码已具备；剩下是**产出一个自包含、可重定位的运行时**：
+- PyInstaller 首次构建通常要补 `--hidden-import` / `--add-data`（Hermes 动态导入多、还带 skills/locales/node 资源），需按报错迭代。
+- 体积较大（内置解释器 + 依赖）；启动需做进度提示。
+- 跨平台（Windows）另需各自构建。
+
+这块属于构建工程，建议放到 CI 里跑通后再随包分发；当前桌面端已能「检测复用本机 Hermes」，不内置也可用。

@@ -14,6 +14,8 @@ export interface NovaSettings {
   yolo: boolean
   /** 工作目录（Agent 执行的 cwd）；留空则用用户主目录 */
   workdir: string
+  /** ACP 模式：结构化执行时间线（实验），走 `hermes acp` */
+  useAcp: boolean
 }
 
 const DEFAULTS: NovaSettings = {
@@ -21,7 +23,8 @@ const DEFAULTS: NovaSettings = {
   profile: '',
   model: '',
   yolo: true,
-  workdir: ''
+  workdir: '',
+  useAcp: false
 }
 
 function settingsFile(): string {

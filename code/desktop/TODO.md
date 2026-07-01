@@ -1,7 +1,7 @@
 # Nova 桌面端 — TODO
 
 ## 打包 / 分发
-- [~] **内置 Hermes 到安装包**：结构+文档已就位（`code/hermes/README.md`，extraResources 注释待启用）。**阻塞**：缺 Hermes 源码/可分发运行时，给到来源即可落地。当前靠「检测优先」复用本机 Hermes。
+- [~] **内置 Hermes 到安装包**：源码已确认（`NousResearch/hermes-agent`，本机 `~/.hermes/hermes-agent`）；`code/hermes/build-runtime.sh`（PyInstaller）+ README + extraResources 说明就位。**剩余**：产出可重定位运行时需补 hidden-import/data 并跑 CI（体积/跨平台）。当前靠「检测复用本机 Hermes」。
 - [x] **应用图标**：`build/icon.icns`（从 `icon.png` 生成），打包后 .app 使用该图标。
 - [x] **签名与公证**：entitlements + hardenedRuntime 配置 + `dist:signed` 脚本 + `DISTRIBUTION.md` 就位。**需 Apple Developer 证书**才能真正签名公证（无证书用 `dist:unsigned`）。
 - [x] **OTA 自动更新**：electron-updater（GitHub Releases）；设置→关于：显示版本、检查更新、下载、重启安装。macOS 自动安装需签名。
@@ -18,5 +18,5 @@
 - [x] **用量按天**：用量页支持 近 7/30/90 天 切换（`hermes insights --days`）。
 - [~] **迷你浏览器**：`target=_blank` 弹窗已在同一 webview 内打开；**多标签页**待做。
 - [ ] **真实语音 STT**：Web Speech 在 Electron 不稳，改录音 + ASR endpoint（**需指定转写服务**）。
-- [ ] **执行面板结构化时间线**：需 Hermes **ACP**（编辑器集成的 JSON-RPC 协议）输出结构化工具事件；属较大独立集成。当前真实模式为单条 hermes 步骤 + 流式文本。
+- [x] **执行面板结构化时间线（ACP）**：实现最小 ACP 客户端（`src/main/acp.ts`）驱动 `hermes acp`，把 `tool_call`/`tool_call_update`/`agent_message_chunk` 映射成时间线+流式文本。设置→通用「ACP 模式（实验）」开启。协议已实测（initialize/session-new/prompt/update）。权衡：ACP 会话为独立 UUID，暂不整合侧栏会话列表。
 - [ ] **MCP 表单**：`mcp add` 发现式安装的交互参数完善。
